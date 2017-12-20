@@ -1,0 +1,131 @@
+#+TITLE: Starter Kit JS
+#+OPTIONS: toc:nil num:nil ^:nil
+
+This is part of the [[file:starter-kit.org][Emacs Starter Kit]].
+
+* Starter Kit JS
+Java-script Helpers
+
+** Install JS packages
+#+begin_src emacs-lisp
+  (setq install-packages (list 'js2-mode
+                               'js2-refactor
+                               'css-mode
+                               'mouse-slider-mode
+                               'flycheck
+                               'flycheck-color-mode-line
+                               'web-mode
+                               'skewer-mode
+                               'simple-httpd))
+  (dolist (package install-packages) (package-install package))
+#+end_src
+
+#+begin_src emacs-lisp
+  (autoload 'js2-mode "js2-mode" "Start js2-mode" t)
+  (add-to-list 'auto-mode-alist '("\\.js\\(on\\)?$" . js2-mode))
+
+  (add-to-list 'auto-mode-alist '("\\.css$" . css-mode))
+  (add-to-list 'auto-mode-alist '("\\.xml$" . nxml-mode))
+
+  (add-to-list 'auto-mode-alist '("\\.html?\\'" . web-mode))
+
+  (add-hook 'js2-mode-hook 'run-coding-hook)
+#+end_src
+
+#+begin_src emacs-lisp
+  (require 'simple-httpd)
+
+  (require 'skewer-mode)
+  (require 'skewer-repl)
+  (require 'skewer-html)
+  (require 'skewer-css)
+
+  (defun skewer-start ()
+    (interactive)
+    (let ((httpd-port 8023))
+      (httpd-start)
+      (message "Ready to skewer the browser. Now jack in with the bookmarklet.")))
+
+  (defun skewer-demo ()
+    (interactive)
+    (let ((httpd-port 8024))
+      (run-skewer)
+      (skewer-repl)))
+
+  (require 'mouse-slider-mode)
+
+  (add-to-list 'mouse-slider-mode-eval-funcs
+               '(js2-mode . skewer-eval-defun))
+
+  (provide 'setup-skewer)
+
+  ;;(setq httpd-root "/var/www")
+
+  (add-hook 'js2-mode-hook 'skewer-mode)
+  (add-hook 'css-mode-hook 'skewer-css-mode)
+  (add-hook 'html-mode-hook 'skewer-html-mode)
+#+end_src
+
+** Use Some stely js param
+#+begin_src emacs-lisp
+  (add-hook 'js2-mode-hook
+            '(lambda ()
+              (company-mode)
+              (flycheck-mode t)
+              (setq flycheck-jshintrc "~/.emacs.d/.jshintrc")
+
+              (setq-default js2-allow-rhino-new-expr-initializer nil)
+              (setq-default js2-auto-indent-p nil)
+              (setq-default js2-enter-indents-newline nil)
+              (setq-default js2-global-externs '("module" "require" "buster" "sinon" "assert" "refute" "setTimeout" "clearTimeout" "setInterval" "clearInterval" "location" "__dirname" "console" "JSON"))
+              (setq-default js2-idle-timer-delay 0.1)
+              (setq-default js2-indent-on-enter-key nil)
+              (setq-default js2-mirror-mode nil)
+              (setq-default js2-strict-inconsistent-return-warning nil)
+              (setq-default js2-auto-indent-p t)
+              (setq-default js2-include-rhino-externs nil)
+              (setq-default js2-include-gears-externs nil)
+              (setq-default js2-concat-multiline-strings 'eol)
+              (setq-default js2-rebind-eol-bol-keys nil)
+
+              ;; Let flycheck handle parse errors
+              (setq-default js2-show-parse-errors nil)
+              (setq-default js2-strict-missing-semi-warning nil)
+              (setq-default js2-strict-trailing-comma-warning t) ;; jshint does not warn about this now for some reason
+
+              (setq whitespace-line-column 120)
+              (setq-default tab-width 2) ;; the width of the tab - 2 whitespace
+              (setq-default c-basic-offset 2)
+              (setq-default js-indent-level 2)
+              (setq-default standart-indent 2) ;; standard width of indentation - 2 whitespace
+              (setq indent-line-function (quote insert-tab))))
+#+end_src
+
+** Funcktion keybinding
+#+begin_src emacs-lisp :tangle no
+  (eval-after-load 'js2-mode-hook '(progn
+    (let ((m js2-mode-mode-map))
+      (define-key m (kbd "C-s-e") 'py-end-of-def-or-class)
+      (define-key m (kbd "C-s-b") 'py-beginning-of-def-or-class)
+      (define-key m (kbd "C-s-l") 'py-shift-region-left)
+      (define-key m (kbd "C-s-r") 'py-shift-region-right)
+
+      (define-key m (kbd "C-.") 'jedi:goto-definition)
+      (define-key m (kbd "C-,") 'jedi:goto-definition-pop-marker)
+      (define-key m (kbd "C-?") 'jedi:show-doc)
+      (define-key m (kbd "M-/") 'jedi:get-in-function-call)
+      (define-key m (kbd "C-s-d") 'jedi-direx:pop-to-buffer))))
+#+end_src
+
+
+#+begin_src emacs-lisp
+  (defun starter-kit-pp-json ()
+    "Pretty-print the json object following point."
+    (interactive)
+    (require 'json)
+    (let ((json-object (save-excursion (json-read))))
+      (switch-to-buffer "*json*")
+      (delete-region (point-min) (point-max))
+      (insert (pp json-object))
+      (goto-char (point-min))))
+#+end_src

@@ -1,0 +1,198 @@
+#+TITLE: Local User Customizations
+#+OPTIONS: toc:nil num:nil ^:nil
+
+* Starter Kit darkanthey
+/You must change the name of this file/ to the value of the Emacs
+ variable =user-login-name= OR =system-name=, so that it will be
+ picked up by =init.el= when Emacs starts up, and be loaded
+ properly. To find the current value of these variables on your
+ system, do =C-h-v system-name [RET]= and =C-h-v user-login-name
+ [RET]=. For example, on my system =user-login-name= is 'darkanthey', so
+ this file is named =darkanthey.org=, and when Emacs starts up with the
+ starter kit it creates the file =darkanthey.el=.
+
+You will also need to change the values for the location of bibtex
+ databases and orgmode-mobile specified below, and some other
+ settings. *Search for 'darkanthey' in this file* to find the paths that
+ need to be updated. Change them as needed or comment them out if you
+ don't use these features.
+
+** Miscellaneous Settings and starter-kit overrides
+*** User settings
+
+#+srcname: user-local-settings
+#+begin_src emacs-lisp
+  ;; My name and e-mail adress
+  (setq user-full-name   "Andrew Grytsenko")
+  (setq user-mail-adress "darkanthey@gmail.com")
+#+end_src
+
+
+*** Theme settings
+    Chenge theme or/and color settings
+
+#+srcname: local-settings
+#+begin_src emacs-lisp
+  ;;(load-theme 'zenburn t)
+  (load-theme 'material t)
+
+  (require 'powerline)
+  (powerline-center-theme)
+#+end_src
+
+
+#+srcname: customization persp-mode
+#+begin_src emacs-lisp
+  (project-specifics "projects/proj"
+    (set (make-local-variable 'slime-js-target-url) "http://local.proj.com/")
+    (ffip-local-patterns "*.py" "*.scss" "*.js" "*.xml" "*.html"))
+
+  ;; (defun custom-persp/org ()
+  ;;   (interactive)
+  ;;   (custom-persp "@org"
+  ;;     (find-file (first org-agenda-files))))
+
+  ;; (global-set-key (kbd "C-x p o") 'custom-persp/org)
+#+end_src
+
+
+*** Prodigy Project
+#+srcname: prodigy-mode
+#+begin_src emacs-lisp
+  (prodigy-define-service
+    :name "docker"
+    :command "docker"
+    :args '("start" "dynamodb redis mail")
+    :cwd "/home/darkanthey/code/oauth2/"
+    :tags '(proj)
+    :kill-signal 'sigkill
+    :kill-process-buffer-on-stop t)
+#+end_src
+
+
+** Local Org-mode Settings
+
+*** Agenda Settings
+#+source: orgmode-archive
+#+begin_src emacs-lisp
+  (setq org-todo-keywords
+        '((sequence "TODO(t)" "PENDING(p)" "MEETING(m)" "|" "DONE(d)" "CANCELED(c)")))
+
+  ;; Automatically mark todo items with todo subitems as DONE when all subitems are done.
+  (defun my-org-autodone (n-done n-not-done)
+    "Switch entry to DONE when all subentries are done, to TODO otherwise."
+    (let (org-log-done org-log-states)   ; turn off logging
+      (org-todo (if (= n-not-done 0) "DONE" "TODO"))))
+
+  (add-hook 'org-after-todo-statistics-hook 'my-org-autodone)
+
+  ;;File and refile notes to any main header in any file in my org-agenda-files list.
+  (setq org-refile-targets '((nil :level . 1)
+                             (org-agenda-files :level . 1)))
+#+end_src
+
+
+*** Org Settings
+    Sync orgmode files with Dropbox.
+#+src-name: orgmode-mobile
+#+begin_src emacs-lisp
+   ;; Where archived projects and tasks go
+   (setq org-archive-location "~/Templates/Dropbox/Org/archive.org::From %s")
+   ;; Set to the location of your Org files on your local system
+   (setq org-directory "~/Templates/Dropbox/Org")
+   ;; Set to <your Dropbox root directory>/MobileOrg.
+   (setq org-mobile-directory "~/Templates/Dropbox/MobileOrg")
+   ;; Set to the files (or directory of files) you want sync'd
+   (setq org-agenda-files (quote ("~/Templates/Dropbox/Org")))
+   ;; Set to the name of the file where new notes will be stored
+   (setq org-mobile-inbox-for-pull "~/Templates/Dropbox/Org/from-mobile.org")
+#+end_src
+
+
+** Searching the web can also be improved with Emacs.
+#+source: auto-complete
+#+begin_src emacs-lisp
+  (global-set-key (kbd "C-x e") 'webjump)
+
+  ;; Add Urban Dictionary to webjump
+  (eval-after-load "webjump"
+  '(add-to-list 'webjump-sites
+                '("Urban Dictionary" .
+                  [simple-query
+                   "www.urbandictionary.com"
+                   "http://www.urbandictionary.com/define.php?term="
+                   ""])))
+#+end_src
+
+
+** Auto-complete mode
+   Powerful autocompletion; experimentally added. Will pop-up
+   autocomplete suggestions as you type; hit =TAB= to complete, or
+   choose from the menu of options.
+
+#+source: auto-complete
+#+begin_src emacs-lisp
+  (require 'fuzzy)
+  (require 'auto-complete)
+  (setq ac-auto-show-menu t
+        ac-quick-help-delay 0.5
+        ac-use-fuzzy t)
+  (global-auto-complete-mode +1)
+
+  (require 'auto-complete-config)
+  (setq ac-modes (append ac-modes '(org-mode)))
+  (ac-config-default)
+  (define-key ac-complete-mode-map [tab] 'ac-expand)
+  (setq ac-auto-start 4)
+  (ac-flyspell-workaround)
+  (define-key ac-mode-map (kbd "M-\\") 'auto-complete)
+#+end_src
+
+
+** IRC
+#+source: rirc-configuration
+#+begin_src emacs-lisp
+  ;; connect to irc on invocation but don't autojoin any channels
+  (require 'rcirc)
+  ;; (add-to-list 'rcirc-server-alist '("irc.freenode.net"))
+  (setq rcirc-server-alist
+        '(("irc.freenode.net" :port 6697 :encryption tls :channels ("#haskell" "#emacs" "#python"))))
+#+end_src
+
+
+** Local iBuffer Settings
+   Manage a lot of buffers easily with C-x C-b. Already set up
+   elsewhere in the starter kit. Add local configuration here, e.g.,
+   display categories.
+#+srcname: iBuffer-custom
+#+begin_src emacs-lisp
+  (setq ibuffer-saved-filter-groups
+      '(("home"
+         ("Python" (mode . python-mode))
+         ("Haskell" (mode . haskell-mode))
+         ("Prog" (mode . prog-mode-hook))
+         ("Org" (or (mode . org-mode)
+                    (filename . "OrgMode")))
+         ("Web Dev" (or (mode . html-mode)
+                        (mode . css-mode)
+                        (mode . js2-mode)
+                        (mode . web-mode)
+                        (mode . jinja2-mode)))
+         ("Magit" (name . "\*magit"))
+         ("Prodigy" (name . "\*prodigy"))
+         ("Dired" (mode . dired-mode))
+         ("LaTeX" (mode . latex-mode))
+         ("IRC" (mode . rcirc))
+         ("Help" (or (name . "\*Help\*")
+                     (name . "\*Apropos\*")
+                     (name . "\*info\*"))))))
+
+       (add-hook 'ibuffer-mode-hook
+         '(lambda () (ibuffer-switch-to-saved-filter-groups "home")))
+       (setq ibuffer-show-empty-filter-groups nil)
+       (setq ibuffer-expert t)
+       (add-hook 'ibuffer-mode-hook
+         '(lambda ()
+           (ibuffer-auto-mode 1)
+           (ibuffer-switch-to-saved-filter-groups "home")))
+#+end_src

@@ -1,0 +1,33 @@
+*.el~
+loaddefs.el*
+backups/*
+auto-save-list
+custom.el
+*elc
+places
+url/cookies
+thumbs/*
+oddmuse/*
+.newsrc-dribble
+.nnmail-cache
+/#.newsrc-dribble#
+.svn
+elim/
+session*
+tramp
+
+\#*
+## exported files
+*el
+starter-kit-*.el
+doc
+eshell/lastdir
+eshell/history
+eshell/lastdir
+
+## org stuff
+.org-id-locations
+/ac-comphist.dat
+/.#starter-kit-latex.org
+elpa/*
+custom.el

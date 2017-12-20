@@ -1,0 +1,47 @@
+#+TITLE: Starter Kit Emms
+#+OPTIONS: toc:nil num:nil ^:nil
+
+This is part of the [[file:starter-kit.org][Emacs Starter Kit]].
+
+* Starter Kit Emms
+  :PROPERTIES:
+  :results:  silent
+  :END:
+Support for EMMS
+
+** Install Emms packages
+#+begin_src emacs-lisp
+  (setq install-packages (list 'emms 'emms-player-mpv))
+  (dolist (package install-packages) (package-install package))
+#+end_src
+
+** Emms setup
+#+begin_src emacs-lisp
+  (autoload 'emms-smart-browse "emms-browser.el" "Browse with EMMS" t)
+  (global-set-key [f9] 'emms-smart-browse)
+
+  (require 'emms-player-mpv)
+  (with-eval-after-load 'emms
+    (emms-standard) ;; or (emms-devel) if you want all features
+    (setq emms-source-file-default-directory "~/Music"
+          emms-playlist-buffer-name "*Music*"
+          emms-info-asynchronously t
+          emms-show-format "♪ %s")
+
+  (require 'emms-setup)
+       (emms-standard)
+       (emms-default-players)
+
+  (require 'emms-player-simple nil 'noerror)
+       (require 'emms-source-file nil 'noerror)
+       (require 'emms-source-playlist nil 'noerror)
+       (setq emms-player-list '(emms-player-mpg321
+                                emms-player-ogg123
+                                emms-player-mpv
+                                emms-player-mplayer)))
+
+    ;; Might want to check `emms-info-functions',
+    ;; `emms-info-libtag-program-name',
+    ;; `emms-source-file-directory-tree-function'
+    ;; as well.
+#+end_src

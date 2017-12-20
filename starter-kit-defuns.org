@@ -1,0 +1,525 @@
+#+TITLE: Starter Kit Defuns
+#+OPTIONS: toc:nil num:nil ^:nil
+
+This is part of the [[file:starter-kit.org][Emacs Starter Kit]].
+
+* Starter Kit Defuns
+Function definitions
+
+#+begin_src emacs-lisp
+  (require 'thingatpt)
+  (require 'imenu)
+#+end_src
+
+** Buffer-related
+
+#+srcname: starter-kit-ido-imenu
+#+begin_src emacs-lisp
+  (defun ido-imenu ()
+    "Update the imenu index and then use ido to select a symbol to navigate to.
+  Symbols matching the text at point are put first in the completion list."
+    (interactive)
+    (imenu--make-index-alist)
+    (let ((name-and-pos '())
+          (symbol-names '()))
+      (cl-flet ((addsymbols (symbol-list)
+                         (when (listp symbol-list)
+                           (dolist (symbol symbol-list)
+                             (let ((name nil) (position nil))
+                               (cond
+                                ((and (listp symbol) (imenu--subalist-p symbol))
+                                 (addsymbols symbol))
+
+                                ((listp symbol)
+                                 (setq name (car symbol))
+                                 (setq position (cdr symbol)))
+
+                                ((stringp symbol)
+                                 (setq name symbol)
+                                 (setq position (get-text-property 1 'org-imenu-marker symbol))))
+
+                               (unless (or (null position) (null name))
+                                 (add-to-list 'symbol-names name)
+                                 (add-to-list 'name-and-pos (cons name position))))))))
+        (addsymbols imenu--index-alist))
+      ;; If there are matching symbols at point, put them at the beginning of `symbol-names'.
+      (let ((symbol-at-point (thing-at-point 'symbol)))
+        (when symbol-at-point
+          (let* ((regexp (concat (regexp-quote symbol-at-point) "$"))
+                 (matching-symbols (delq nil (mapcar (lambda (symbol)
+                                                       (if (string-match regexp symbol) symbol))
+                                                     symbol-names))))
+            (when matching-symbols
+              (sort matching-symbols (lambda (a b) (> (length a) (length b))))
+              (mapc (lambda (symbol) (setq symbol-names (cons symbol (delete symbol symbol-names))))
+                    matching-symbols)))))
+      (let* ((selected-symbol (ido-completing-read "Symbol? " symbol-names))
+             (position (cdr (assoc selected-symbol name-and-pos))))
+        (goto-char position))))
+#+end_src
+
+
+** These belong in coding-hook:
+
+We have a number of turn-on-* functions since it's advised that lambda
+functions not go in hooks. Repeatedly evaling an add-to-list with a
+hook value will repeatedly add it since there's no way to ensure that
+a lambda doesn't already exist in the list.
+
+#+srcname: starter-kit-hook-functions
+#+begin_src emacs-lisp
+  (defun local-comment-auto-fill ()
+    (set (make-local-variable 'comment-auto-fill-only-comments) t)
+    (auto-fill-mode t))
+
+  (defun turn-on-hl-line-mode ()
+    (if window-system (hl-line-mode t)))
+
+  (defun turn-on-save-place-mode ()
+    (setq save-place t))
+
+  (defun turn-on-whitespace ()
+    (whitespace-mode t))
+
+  (defun turn-on-semantic ()
+    ((global-semantic-idle-scheduler-mode)
+     (global-semantic-idle-completions-mode)
+     (global-semantic-decoration-mode)
+     (global-semantic-highlight-func-mode)
+     (global-semantic-show-unmatched-syntax-mode)))
+#+end_src
+
+
+#+srcname: starter-kit-untabify-buffer
+#+begin_src emacs-lisp
+  (defun untabify-buffer ()
+    (interactive)
+    (untabify (point-min) (point-max)))
+#+end_src
+
+
+#+srcname: starter-kit-indent-buffer
+#+begin_src emacs-lisp
+  (defun indent-buffer ()
+    (interactive)
+    (indent-region (point-min) (point-max)))
+#+end_src
+
+
+#+srcname: starter-kit-cleanup-buffer
+#+begin_src emacs-lisp
+  (defun cleanup-buffer ()
+    "Perform a bunch of operations on the whitespace content of a buffer."
+    (interactive)
+    ;;(indent-buffer)
+    (untabify-buffer)
+    (delete-trailing-whitespace))
+#+end_src
+
+
+#+source: cleanup-buffer-on-save
+#+begin_src emacs-lisp
+  ;; Credit: Alex Ott
+  (defun cleanup-buffer-hook ()
+    "A hook for cleanup-buffer. cleanup-buffer-modes should be a list
+    of modes you want the cleanup-buffer function applied to routinely. "
+    (when (member major-mode cleanup-buffer-modes)
+      (cleanup-buffer)))
+  ;; now files int he modes listed in cleanup-buffer-mode will be
+  ;; automatically cleaned every time they are saved.
+  (add-hook 'before-save-hook 'cleanup-buffer-hook)
+#+end_src
+
+
+#+source: cleanup-buffer-when
+#+begin_src emacs-lisp
+  (setq cleanup-buffer-modes
+        '(haskell-mode emacs-lisp-mode lisp-mode scheme-mode python-mode js2-mode
+                       erlang-mode clojure-mode ruby-mode scala-mode haskell-mode))
+#+end_src
+
+
+#+srcname: starter-kit-recentf-ido-find-file
+#+begin_src emacs-lisp
+  (defun recentf-ido-find-file ()
+    "Find a recent file using Ido."
+    (interactive)
+    (let* ((file-assoc-list
+            (mapcar (lambda (x)
+                      (cons (file-name-nondirectory x)
+                            x))
+                    recentf-list))
+           (filename-list
+            (remove-duplicates (mapcar #'car file-assoc-list)
+                               :test #'string=))
+           (filename (ido-completing-read "Choose recent file: "
+                                          filename-list
+                                          nil
+                                          t)))
+      (when filename
+        (find-file (cdr (assoc filename
+                               file-assoc-list))))))
+#+end_src
+
+
+** Copy and Duplicate line
+
+#+srcname: duplicate_line
+#+begin_src emacs-lisp
+  (defun duplicate-line()
+    (interactive)
+    (move-beginning-of-line 1)
+    (kill-line)
+    (yank)
+    (open-line 1)
+    (next-line 1)
+    (yank))
+#+end_src
+
+
+#+srcname: delete_word
+#+begin_src emacs-lisp
+  (defun delete-word (arg)
+    "Delete characters backward until encountering the beginning of a word.
+    With argument ARG, do this that many times."
+    (interactive "p")
+      (delete-region (point) (progn (forward-word arg) (point))))
+
+  (defun backward-delete-word (arg)
+    "Delete characters backward until encountering the beginning of a word.
+    With argument, do this that many times.
+    This command does not push erased text to kill-ring."
+    (interactive "p")
+      (delete-word (- arg)))
+#+end_src
+
+
+#+srcname: copy_line
+#+begin_src emacs-lisp
+  (defun copy-line-or-region ()
+   "Copy current line, or current text selection."
+    (interactive)
+    (if (region-active-p)
+        (kill-ring-save (region-beginning) (region-end))
+      (kill-ring-save (line-beginning-position) (line-beginning-position 2))))
+#+end_src
+
+
+#+srcname: copy_line
+#+begin_src emacs-lisp
+  (defun copy-word ()
+    (interactive)
+    (kill-new (thing-at-point 'sexp)))
+#+end_src
+
+
+** ffip defun
+#+srcname: ffip
+#+begin_src emacs-lisp
+  (require 'find-file-in-project)
+  (require 's)
+
+  ;; No need to be stingy
+  (setq ffip-limit 4096)
+
+  ;; Use full project path for ffip
+
+  (defun ffip-project-files ()
+    "Return an alist of all filenames in the project and their path."
+    (let ((file-alist nil))
+      (mapcar (lambda (file)
+                (let ((file-cons (cons (s-chop-prefix (file-truename (ffip-project-root)) (expand-file-name file))
+                                       (expand-file-name file))))
+                  (add-to-list 'file-alist file-cons)
+                  file-cons))
+              (split-string (shell-command-to-string
+                             (format "find %s -type f \\( %s \\) %s | head -n %s"
+                                     (or ffip-project-root
+                                         (ffip-project-root)
+                                         (error "No project root found"))
+                                     (ffip-join-patterns)
+                                     ffip-find-options
+                                     ffip-limit))))))
+
+  (defun ffip-create-exclude-find-options (names)
+    (mapconcat (lambda (name)
+                 (concat "-not -regex \".*" name ".*\"")) names " "))
+
+  (defun ffip-local-excludes (&rest names)
+    "Given a set of names, will exclude results with those names in the path."
+    (set (make-local-variable 'ffip-find-options)
+         (ffip-create-exclude-find-options names)))
+
+  (defun ffip-local-patterns (&rest patterns)
+    "An exhaustive list of file name patterns to look for."
+    (set (make-local-variable 'ffip-patterns) patterns))
+
+  ;; Function to create new functions that look for a specific pattern
+  (defun ffip-create-pattern-file-finder (&rest patterns)
+    (lexical-let ((patterns patterns))
+      (lambda ()
+        (interactive)
+        (let ((ffip-patterns patterns))
+          (find-file-in-project)))))
+
+  ;; Default excludes - override with ffip-local-excludes
+  (setq-default ffip-find-options
+                (ffip-create-exclude-find-options
+                 '("/node_modules"
+                   "/target"
+                   "/out"
+                   "/overlays"
+                   "/build"
+                   "/dist"
+                   "/vendor"
+                   "/.cask"
+                   "/generated"
+                   "/.repl")))
+
+  (provide 'setup-ffip)
+#+end_src
+
+
+#+srcname: project_specifics
+#+begin_src emacs-lisp
+  (defmacro project-specifics (name &rest body)
+    `(progn
+       (add-hook 'find-file-hook
+                 (lambda ()
+                   (when (string-match-p, name (buffer-file-name))
+                     , body)))
+       (add-hook 'dired-after-readin-hook
+                 (lambda ()
+                   (when (string-match-p, name (dired-current-directory)), body)))))
+#+end_src
+
+
+#+srcname: hide some mode in mode line
+#+begin_src emacs-lisp
+  (defvar mode-line-cleaner-alist
+    `((auto-complete-mode . " α")
+      (yas/minor-mode . " υ")
+      (paredit-mode . " π")
+      (company-mode . " c")
+      (projectile-mode . " Ȝ")
+      ;; (eldoc-mode . "")
+      (abbrev-mode . "")
+      (visual-line-mode . "")
+      (color-identifiers-mode . "")
+      (whitespace-mode . "")
+      (undo-tree-mode . "")
+      (auto-fill-mode . "")
+      ;; Major modes
+      (lisp-interaction-mode . "λ")
+      (hi-lock-mode . "")
+      (python-mode . "ƿ")
+      (emacs-lisp-mode . "EL")
+      (nxhtml-mode . "nx"))
+    "Alist for `clean-mode-line'.
+
+  When you add a new element to the alist, keep in mind that you
+  must pass the correct minor/major mode symbol and a string you
+  want to use in the modeline *in lieu of* the original.")
+
+  (defun clean-mode-line ()
+    (interactive)
+    (loop for cleaner in mode-line-cleaner-alist
+          do (let* ((mode (car cleaner))
+                   (mode-str (cdr cleaner))
+                   (old-mode-str (cdr (assq mode minor-mode-alist))))
+               (when old-mode-str
+                   (setcar old-mode-str mode-str))
+                 ;; major mode
+               (when (eq mode major-mode)
+                 (setq mode-name mode-str)))))
+
+  (add-hook 'after-change-major-mode-hook 'clean-mode-line)
+#+end_src
+
+
+#+srcname: sudo config
+#+begin_src emacs-lisp
+  (defun sudo-shell-command (command)
+    (interactive "MShell command (root): ")
+    (with-temp-buffer
+      (cd "/sudo::/")
+      (async-shell-command command)))
+#+end_src
+
+
+** Persp mode customisation.
+#+srcname: persp projectile hook"
+#+begin_src emacs-lisp
+  (with-eval-after-load "persp-mode-projectile-bridge-autoloads"
+    (add-hook 'persp-mode-projectile-bridge-mode-hook
+              #'(lambda ()
+                  (if persp-mode-projectile-bridge-mode
+                      (persp-mode-projectile-bridge-find-perspectives-for-all-buffers)
+                    (persp-mode-projectile-bridge-kill-perspectives))))
+    (add-hook 'after-init-hook
+              #'(lambda ()
+                  (persp-mode-projectile-bridge-mode 1))
+              t))
+#+end_src
+
+
+#+srcname: helm-persp-bridge-v2
+#+begin_src emacs-lisp
+  (with-eval-after-load "persp-mode"
+    (with-eval-after-load "helm-mode"
+
+      (defvar helm-mini-tail-sources (cdr helm-mini-default-sources))
+      (defvar helm-persp-completing-read-handlers
+        '((switch-to-buffer                 . helm-persp-buffer-list-bridge)
+          (kill-buffer                      . helm-persp-buffer-list-bridge)
+          (persp-kill-buffer                . helm-persp-buffer-list-bridge)
+          (persp-temporarily-display-buffer . helm-persp-buffer-list-bridge)
+          (persp-add-buffer                 . helm-persp-buffer-list-bridge)
+          (persp-remove-buffer              . helm-persp-buffer-list-bridge)))
+
+      (defclass helm-persp-free-buffers-source (helm-source-buffers)
+        ((buffer-list
+          :initarg :buffer-list
+          :initform #'(lambda () (mapcar #'buffer-name (persp-buffer-list-restricted nil 3)))
+          :custom function
+          :documentation
+          "  A function with no arguments to create buffer list.")))
+
+      (defvar helm-source-persp-free-buffers
+        (helm-make-source "Free buffers"
+            'helm-persp-free-buffers-source
+          :fuzzy-match t))
+
+      (defun helm-persp-buffers-list--init ()
+        (let* ((buffers (funcall (helm-attr 'buffer-list)))
+               (result (cl-loop for b in buffers
+                                maximize (length b) into len-buf
+                                maximize (length (with-current-buffer b
+                                                   (format-mode-line mode-name)))
+                                into len-mode
+                                finally return (cons len-buf len-mode))))
+          (unless (default-value 'helm-buffer-max-length)
+            (helm-set-local-variable 'helm-buffer-max-length (car result)))
+          (unless (default-value 'helm-buffer-max-len-mode)
+            (helm-set-local-variable 'helm-buffer-max-len-mode (cdr result)))
+          (helm-attrset 'candidates buffers)))
+
+      (defclass helm-persp-buffers-source (helm-source-buffers)
+        ((buffer-list
+          :initarg :buffer-list
+          :initform #'(lambda () (mapcar #'buffer-name (persp-buffers (helm-attr 'persp))))
+          :custom function
+          :documentation
+          "  A function with no arguments to create buffer list.")
+         (persp
+          :initarg :persp
+          :initform (get-current-persp))
+         (init :initform #'helm-persp-buffers-list--init)))
+
+      (defvar helm-persp-sources-list '(helm-source-persp-free-buffers))
+      (defvar helm-persp-source-name-prefix "helm-source-persp-buffers-list-")
+
+      (defmacro persp-helm--liftup-source (source-name)
+        `(progn
+           (setq helm-persp-sources-list
+                 (cons ,source-name
+                       (cl-delete ,source-name helm-persp-sources-list)))
+           (setq helm-mini-default-sources
+                 (append helm-persp-sources-list
+                         helm-mini-tail-sources))))
+
+      (defmacro persp-helm--soure-name-from-persp-name (pn)
+        `(intern (concat helm-persp-source-name-prefix ,pn)))
+
+      (add-hook 'persp-created-functions
+                #'(lambda (p ph)
+                    (when (and (eq ph *persp-hash*) p)
+                      (let* ((pn (persp-name p))
+                             (source-name (persp-helm--soure-name-from-persp-name pn)))
+                        (eval
+                         `(defvar ,source-name
+                            (helm-make-source ,(concat pn " buffers")
+                                'helm-persp-buffers-source :persp ,p)))
+                        (setq helm-persp-sources-list
+                              (append helm-persp-sources-list (list source-name))))
+                      (setq helm-mini-default-sources
+                            (append helm-persp-sources-list
+                                    helm-mini-tail-sources)))))
+
+      (add-hook 'persp-before-kill-functions
+                #'(lambda (p)
+                    (when p
+                      (let* ((pn (persp-name p))
+                             (source-name (persp-helm--soure-name-from-persp-name pn)))
+                        (setq helm-persp-sources-list
+                              (cl-delete source-name helm-persp-sources-list))
+                        (setq helm-mini-default-sources
+                              (append helm-persp-sources-list
+                                      helm-mini-tail-sources))
+                        (makunbound source-name)))))
+
+      (add-hook 'persp-mode-hook #'(lambda ()
+                                     (if persp-mode
+                                         (persp-helm-setup-bridge)
+                                       (persp-helm-destroy-bridge))))
+
+      (defun helm-persp-mini ()
+        (interactive)
+        (persp-helm--liftup-source 'helm-source-persp-free-buffers)
+        (let* ((cbuf (current-buffer))
+               (cbn (buffer-name cbuf)))
+          (let ((persp (get-current-persp)))
+            (when (and persp (persp-contain-buffer-p cbuf persp))
+              (let ((source-name (persp-helm--soure-name-from-persp-name (persp-name persp))))
+                (persp-helm--liftup-source source-name))))
+          (or
+           (helm :sources helm-mini-default-sources
+                 :ff-transformer-show-only-basename nil
+                 :fuzzy-match helm-mode-fuzzy-match
+                 :buffer "*helm persp mini*"
+                 :keymap helm-buffer-map
+                 :truncate-lines helm-buffers-truncate-lines
+                 :default cbn
+                 :preselect (substring cbn 0 (min (string-width cbn) helm-buffer-max-length)))
+           (helm-mode--keyboard-quit))))
+
+      (defun helm-persp-buffer-list-bridge
+          (prompt _collection &optional test _require-match init hist default _inherit-im name buffer)
+        (persp-helm--liftup-source 'helm-source-persp-free-buffers)
+        (let ((persp (get-current-persp)))
+          (when (and persp (persp-contain-buffer-p (current-buffer) persp))
+            (let ((source-name (persp-helm--soure-name-from-persp-name (persp-name persp))))
+              (persp-helm--liftup-source source-name))))
+        (let ((deflt (or default "")))
+          (or
+           (helm :sources helm-persp-sources-list
+                 :fuzzy-match helm-mode-fuzzy-match
+                 :prompt prompt
+                 :buffer buffer
+                 :input init
+                 :history hist
+                 :resume 'noresume
+                 :keymap helm-buffer-map
+                 :truncate-lines helm-buffers-truncate-lines
+                 :default deflt
+                 :preselect (substring deflt 0 (min (string-width deflt) helm-buffer-max-length)))
+           (helm-mode--keyboard-quit))))
+
+      (defun persp-helm-setup-bridge ()
+        (setq helm-completing-read-handlers-alist
+              (append helm-persp-completing-read-handlers
+                      helm-completing-read-handlers-alist))
+        (global-set-key (kbd "C-x b") #'helm-persp-mini))
+      (defun persp-helm-destroy-bridge ()
+        (setq helm-mini-default-sources
+              (cons
+               'helm-source-buffers-list
+               helm-mini-tail-sources))
+        (dolist (it helm-persp-completing-read-handlers)
+          (setq helm-completing-read-handlers-alist
+                (delete it helm-completing-read-handlers-alist)))
+        (global-set-key (kbd "C-x b") #'helm-mini))
+
+      (when (bound-and-true-p persp-mode)
+        (persp-helm-setup-bridge))))
+#+end_src

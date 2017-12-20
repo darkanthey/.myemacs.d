@@ -1,0 +1,44 @@
+#+TITLE: Starter Kit Scala
+#+OPTIONS: toc:nil num:nil ^:nil
+
+This is part of the [[file:starter-kit.org][Emacs Starter Kit]].
+
+* Starter kit Scala
+
+Support for the Scala programming language.
+
+*** Load path.
+
+#+srcname: starter-kit-load-paths
+#+begin_src emacs-lisp
+  (setq exec-path (append exec-path (list "/opt/scala-2.11.7/bin" )))
+#+end_src
+
+
+** Install Scala packages
+#+begin_src emacs-lisp
+  (setq install-packages (list 'ensime))
+  (dolist (package install-packages) (package-install package))
+#+end_src
+
+
+** Use Scala's scala-mode.el instead of Emacs' scala.el
+Replace the Scala mode that comes with Emacs by the Scala mode
+supplied by the Scala distribution itself.
+#+begin_src emacs-lisp
+  (setq stack-trace-on-error t)
+  (setq semantic-load-turn-everything-on t)
+
+  (require 'ensime)
+
+  (add-hook 'scala-mode-hook 'run-coding-hook)
+  (add-hook 'scala-mode-hook 'ensime-scala-mode-hook)
+  (add-hook 'scala-mode-hook 'yas-minor-mode)
+  (add-to-list 'auto-mode-alist '("\\.scala\\'" . scala-mode))
+
+  (defun make-example-doc-url (type &optional member)
+    (ensime-make-java-doc-url-helper
+      "http://developer.example.com/apidocs/" type member))
+
+  ;;(add-to-list 'ensime-doc-lookup-map '("^com\\.example\\." . make-example-doc-url))
+#+end_src

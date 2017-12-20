@@ -1,0 +1,266 @@
+#+TITLE: Starter Kit Misc
+#+OPTIONS: toc:nil num:nil ^:nil
+
+This is part of the [[file:starter-kit.org][Emacs Starter Kit]].
+
+* Starter Kit Misc
+Things that don't fit anywhere else.
+
+** Window system stuff
+
+#+srcname: starter-kit-window-view-stuff
+#+begin_src emacs-lisp
+  (when window-system
+    (setq frame-title-format '(buffer-file-name "%f" ("%b")))
+    (tooltip-mode -1)
+    (tool-bar-mode -1)
+    (scroll-bar-mode -1)
+
+    (blink-cursor-mode -1))
+
+  (mouse-wheel-mode t)
+  (auto-compression-mode t) ;; Transparently open compressed files
+  (size-indication-mode t) ;; Show file in %
+  (global-visual-line-mode t) ;; Line wrapping
+  (recentf-mode t) ;; Save a list of recent files visited.
+
+  (setq windmove-wrap-around t)
+
+  (define-coding-system-alias 'UTF-8 'utf-8)
+  (define-coding-system-alias 'UTF8 'utf-8)
+  (define-coding-system-alias 'utf8 'utf-8)
+
+  (prefer-coding-system 'utf-8)
+  (setq locale-coding-system 'utf-8)
+  (set-terminal-coding-system 'utf-8)
+  (set-keyboard-coding-system 'utf-8)
+  (set-selection-coding-system 'utf-8)
+  (set-default-coding-systems 'utf-8)
+
+  (setq ;; Disable backup/autosave files
+        make-backup-files nil
+        auto-save-default nil
+        auto-save-list-file-name nil
+
+        org-agenda-span 14 ;; Org agenda
+        word-wrap t ;; Line wrapping
+        x-select-enable-clipboard t ;; The total OS clipboard
+
+        require-final-newline t ;; Added empty line in EOF
+        next-line-add-newlines nil ;; Not to add a new line to the end of the displacement
+
+        ;; Highlight search resaults
+        search-highlight t
+        query-replace-highlight t
+
+        visible-bell t
+        echo-keystrokes 0.1
+        font-lock-maximum-decoration t
+        font-lock-verbose nil
+        inhibit-startup-screen t
+        inhibit-startup-message t
+        transient-mark-mode t
+        delete-by-moving-to-trash t
+        shift-select-mode nil
+        truncate-partial-width-windows nil
+        uniquify-buffer-name-style 'forward
+        whitespace-style '(trailing lines space-before-tab
+                                    indentation space-after-tab
+                                    face tabs trailing lines-tail)
+        ediff-window-setup-function 'ediff-setup-windows-plain
+        oddmuse-directory (concat dotfiles-dir "oddmuse")
+        xterm-mouse-mode t
+        save-place-file (concat dotfiles-dir "places")
+        redisplay-dont-pause t
+        ring-bell-function 'ignore
+        use-dialog-box nil
+        scroll-margin 10
+        scroll-step 1
+        scroll-conservatively 10000
+        scroll-preserve-screen-position 1
+        mouse-wheel-follow-mouse 't
+        mouse-wheel-scroll-amount '(1 ((shift) . 1)))
+#+end_src
+
+
+** Set browser
+Set this to whatever browser you use e.g...
+#+begin_src emacs-lisp
+  (setq browse-url-browser-function 'browse-url-generic browse-url-generic-program "google-chrome")
+  ;; (setq browse-url-browser-function 'browse-url-firefox)
+  ;; (setq browse-url-browser-function 'browse-default-macosx-browser)
+  ;; (setq browse-url-browser-function 'browse-default-windows-browser)
+  ;; (setq browse-url-browser-function 'browse-default-kde)
+  ;; (setq browse-url-browser-function 'browse-default-epiphany)
+  ;; (setq browse-url-browser-function 'browse-default-w3m)
+  ;; (setq browse-url-browser-function 'browse-url-generic
+  ;;       browse-url-generic-program "~/src/conkeror/conkeror")
+#+end_src
+
+
+** Indent settings
+#+begin_src emacs-lisp
+  (setq-default indent-tabs-mode nil) ;; disable the ability to set margins TAB
+  (setq-default tab-width 2) ;; the width of the tab - 4 whitespace
+  (setq-default tab-stop-list (number-sequence 2 200 2))
+  (setq-default c-basic-offset 2)
+  (setq-default standart-indent 2) ;; standard width of indentation - 4 whitespace
+  ;; (setq-default lisp-body-indent 2) ;; shift Lisp-4 expression whitespace
+
+  (setq indent-line-function (quote insert-tab))
+  (setq lisp-indent-function 'common-lisp-indent-function)
+#+end_src
+
+
+** Enable syntax highlighting for older Emacsen that have it off
+#+begin_src emacs-lisp
+  ;; Syntax highlighting
+  (require 'font-lock)
+  (global-font-lock-mode t)
+  (setq font-lock-maximum-decoration t)
+#+end_src
+
+
+** Show Menu Bar in Window but not in tty
+If launching Emacs as in windowing system, show the menu. If launching in a tty/terminal window, don't display the menu.
+#+source: starter-kit-no-menu-in-tty
+#+begin_src emacs-lisp
+  (if window-system
+      (menu-bar-mode t)
+      (menu-bar-mode -1))
+#+end_src
+
+
+** Highlight matching parentheses when the point is on them.
+#+srcname: starter-kit-match-parens
+#+begin_src emacs-lisp
+  (show-paren-mode t) ;; Include the allocation between the expressions {},[],()
+  (setq show-paren-style 'expression) ;; Highlight expression between {},[],()
+#+end_src
+
+
+** ido mode
+ido-mode is like magic pixie dust!
+#+srcname: starter-kit-loves-ido-mode
+#+begin_src emacs-lisp
+  (when (> emacs-major-version 21)
+    (ido-mode t)
+    (setq ido-enable-prefix nil
+          ido-enable-flex-matching t
+          ido-create-new-buffer 'always
+          ido-use-filename-at-point nil
+          ido-max-prospects 10))
+#+end_src
+
+
+** Other
+#+begin_src emacs-lisp
+  ;; Dired
+  (require 'dired)
+  (setq dired-recursive-deletes 'top) ;; For dired might delete not empty directory
+
+  ;; Delete selection
+  (delete-selection-mode t)
+
+  (set-default 'indicate-empty-lines t)
+
+  (set-default 'imenu-auto-rescan t)
+  (set-default 'imenu-use-popup-menu nil)
+
+  (add-hook 'text-mode-hook 'turn-on-auto-fill)
+  (add-hook 'text-mode-hook 'turn-on-flyspell)
+
+  (defalias 'yes-or-no-p 'y-or-n-p)
+  (random t) ;; Seed the random-number generator
+#+end_src
+
+
+*** possible issues/resolutions with flyspell
+Most of the solution came from [[http://www.emacswiki.org/emacs/FlySpell][EmacsWiki-FlySpell]].  Here is one
+possible fix.
+
+
+** Hippie expand: at times perhaps too hip
+#+begin_src emacs-lisp
+  (delete 'try-expand-line hippie-expand-try-functions-list)
+#+end_src
+
+
+** Programming hook
+#+begin_src emacs-lisp
+  (add-hook 'prog-mode-hook 'coding-hooks)
+
+  (defun coding-hooks ()
+    (require 'flycheck)
+    (require 'rainbow-delimiters)
+
+    (run-hooks 'flycheck)
+
+    (eval-after-load 'flycheck '(progn
+      (let ((m flycheck-mode-map))
+        (define-key m (kbd "C-s-j") 'flycheck-previous-error)
+        (define-key m (kbd "C-s-k") 'flycheck-next-error))))
+
+    (local-comment-auto-fill)
+    (turn-on-hl-line-mode)
+    (turn-on-save-place-mode)
+    (turn-on-whitespace)
+    (ggtags-mode 1)
+
+    (autoload 'rainbow-delimiters-mode "rainbow-delimiters")
+
+    ;; (require 'idle-highlight-mode)
+    ;; (autoload 'idle-highlight-mode "idle-highlight-mode")
+    ;; (idle-highlight-mode t)
+    ;; (highlight-indentation-current-column-mode)
+
+    (global-prettify-symbols-mode +1)
+
+    (font-lock-add-keywords
+     nil '(("\\<\\(FIX\\|TODO\\|FIXME\\|HACK\\|REFACTOR\\)\\:"
+            1 font-lock-warning-face prepend)))
+
+    (rainbow-delimiters-mode))
+
+  (defun run-coding-hook ()
+    "Not every programming mode yet inherits from prog-mode (new to
+     Emacs 24), so this function provides a short-cut for including
+     those hooks in another mode."
+    (run-hooks 'prog-mode-hook))
+#+end_src
+
+
+** Flycheck
+#+begin_src emacs-lisp
+  (add-hook 'prog-mode-hook
+    (lambda ()
+      (defun flycheck-moder(param)
+        (interactive)
+        (flycheck-mode param))
+
+      (defun flycheck-disable()
+        (flycheck-moder nil))
+
+      (defun flycheck-enable()
+        (flycheck-moder t))
+
+      (custom-set-variables
+       '(flycheck-run-in-place nil)
+       '(flycheck-log-level 0))
+      (custom-set-variables
+       '(flycheck-run-in-place nil)
+       '(flycheck-log-level 0))
+      (custom-set-faces
+       '(flycheck-error ((t (:underline "red4"))))
+       '(flycheck-error-face ((t (:background "brown4"))))
+       '(flycheck-fringe-error ((t nil)))
+       '(flycheck-fringe-warning ((t nil)))
+       '(flycheck-warning ((t (:underline "dark orange"))))
+       '(flycheck-warning-face ((t (:background "chocolate4"))))
+       '(flymake-errline ((((class color)) (:underline "red"))))
+       '(flymake-warnline ((((class color)) (:underline "yellow")))))
+
+      (eval-after-load "flycheck"
+        '(add-hook 'flycheck-mode-hook 'flycheck-color-mode-line-mode))))
+#+end_src
+

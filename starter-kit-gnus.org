@@ -1,0 +1,225 @@
+#+TITLE: Starter Kit Gnus
+#+OPTIONS: toc:nil num:nil ^:nil
+
+This is part of the [[file:starter-kit.gnus][Emacs Starter Kit]].
+
+* Starter Kit Gnus
+Configuration for the notoriously difficult to configure [[http://www.gnus.org/][Gnus]] email
+client
+
+1) /personal information/ in this file (specifically in the code
+   blocks which will be tangled in the next step) globally replace
+   "your-name" with your gmail username, and "your-password" with your
+   gmail password.
+
+2) /tangle this file/ Run the =org-babel-tangle= command to extract
+   the code embedded in this file into a =starter-git-gnus-imap.el=
+   file which can be added to your configuration, and a =~/.authinfo=
+   file which will be used by gnus.
+
+3) /load this configuration/ If you have a recent version of Org-mode
+   (i.e. after 7.0) or are using the [[http://eschulte.github.com/emacs24-starter-kit/][literate Emacs Starter Kit]], then
+   this file can be loaded directly using the =org-babel-load-file=
+   function, or by placing it in your load path (if you're using the
+   starter kit).
+
+4) /view your mail/ After gnus boots up you will see the "Group
+   Buffer" (see [[http://www.gnu.org/software/emacs/manual/html_node/gnus/index.html#toc_Group-Buffer][Group-Buffer]]).  Each line is a mail "Group", hit
+   =SPACE= or =ENTER= on a group to view it's contents.  You should
+   see an "INBOX" group which contains the mail in your gmail account.
+   If not, you can jump to the "INBOX" group by
+     - pressing =j= for "jump"
+     - tab completing the name "INBOX"
+     - pressing =U= for "unkill" meaning this will now always be
+       displayed in your Group buffer when you have new mail
+
+
+** Install packages for GNUS
+#+begin_src emacs-lisp
+  (setq install-packages (list 'w3m
+                               'gnus-desktop-notify
+                               'bbdb))
+  (dolist (package install-packages) (package-install package))
+#+end_src
+
+
+*** Place a line like the following in =~/.authinfo=
+#+begin_src fundamental :tangle ~/.authinfo
+  machine imap.gmail.com login your-name@gmail.com password your-password port 993
+  machine smtp.gmail.com login your-name@gmail.com your-password secret port 587
+#+end_src
+
+  
+*** and make sure that no-one else can read it with
+#+begin_src sh
+  chmod 600 ~/.authinfo
+#+end_src
+
+
+*** sending mail
+/Requirement/: gnus uses the [[http://en.wikipedia.org/wiki/STARTTLS][starttls]] tool for encrypted sending of
+email to the Gmail SMTP server.  This is easily installed on modern
+Debian (including Ubuntu) systems with
+#+begin_src sh
+  apt-get install starttls openssl
+#+end_src
+
+*** Gnus configure for saving mail locally
+Where your mail will be saved locally default value will be =~/gmail=.
+#+begin_src emacs-lisp
+  (require 'gnus)
+  (setq nnml-directory "~/Templates/Mail")
+  (setq message-directory "~/Templates/Mail")
+  (setq gnus-asynchronous t)
+
+  (require 'gnus-desktop-notify)
+  (gnus-desktop-notify-mode)
+  (gnus-demon-add-scanmail)
+
+  ;;(setq mm-discouraged-alternatives '("text/html" "text/richtext"))
+#+end_src
+
+*** Getting mail
+Set Gmail as the primary source for incoming mail (Gnus can aggregate
+many email and/or newsgroup sources).
+#+begin_src emacs-lisp
+  (require 'nnir)
+
+  ;; @see http://www.emacswiki.org/emacs/GnusGmail#toc1
+  (setq gnus-select-method '(nntp "news.gmane.org"))
+  (setq pop3-leave-mail-on-server t)
+
+  ;; ask encyption password once
+  (setq epa-file-cache-passphrase-for-symmetric-encryption t)
+
+  (add-to-list 'gnus-secondary-select-methods
+               '(nnimap "gmail"
+                        (nnimap-address "imap.gmail.com")
+                        (nnimap-server-port 993)
+                        (nnimap-stream ssl)
+                        (nnir-search-engine imap)
+                        (nnimap-expunge-on-close always)
+                        (gnus-check-new-newsgroups nil)
+                        ; @see http://www.gnu.org/software/emacs/manual/html_node/gnus/Expiring-Mail.html
+                        ;; press 'E' to expire email
+                        (nnmail-expiry-target "nnimap+gmail:[Gmail]/Bin")
+                        (nnmail-expiry-wait 90)))
+  ;; (add-to-list 'gnus-secondary-select-methods
+  ;;              '(nnimap "outlook"
+  ;;                       (nnimap-address "outlook.com")
+  ;;                       (nnimap-server-port 1143)
+  ;;                       (nnimap-stream ssl)
+  ;;                       (nnir-search-engine imap)
+  ;;                       (nnimap-expunge-on-close newer)
+  ;;                       (gnus-check-new-newsgroups nil)
+  ;;                       (nnmail-expiry-wait 90)))
+#+end_src
+
+#+RESULTS:
+| nnimap | outlook | (nnimap-address outlook.com) | (nnimap-server-port 993) | (nnimap-stream ssl) | (nnir-search-engine imap) | (nnimap-expunge-on-close newer)  | (gnus-check-new-newsgroups nil) | (nnmail-expiry-wait 90)                           |                         |
+| nnimap | gmail   | (nnimap-address imap.gmail.com)                | (nnimap-server-port 993) | (nnimap-stream ssl) | (nnir-search-engine imap) | (nnimap-expunge-on-close always) | (gnus-check-new-newsgroups nil) | (nnmail-expiry-target nnimap+gmail:[Gmail]/Trash) | (nnmail-expiry-wait 90) |
+
+
+*** Thread sort methods
+#+begin_src emacs-lisp
+  (setq gnus-thread-sort-functions
+        '((not gnus-thread-sort-by-date)
+          (not gnus-thread-sort-by-number)))
+#+end_src
+
+
+*** Gnus cache, bbdb
+#+begin_src emacs-lisp
+  (setq gnus-use-cache t)
+
+  ;; BBDB: Address list
+  (add-to-list 'load-path "~/.emacs.d/bbdb/")
+  (require 'bbdb)
+  (bbdb-initialize 'message 'gnus 'sendmail)
+  (add-hook 'gnus-startup-hook 'bbdb-insinuate-gnus)
+  (setq bbdb/mail-auto-create-p t
+        bbdb/news-auto-create-p t)
+
+  ;; auto-complete emacs address using bbdb UI
+  (add-hook 'message-mode-hook
+            '(lambda ()
+               (flyspell-mode t)
+               (local-set-key "<TAB>" 'bbdb-complete-name)))
+
+  ;; Fetch only part of the article if we can.
+  ;; I saw this in someone's .gnus
+  (setq gnus-read-active-file 'some)
+  (add-hook 'gnus-group-mode-hook 'gnus-topic-mode)
+#+end_src
+
+
+*** Attachment
+#+begin_src emacs-lisp
+  (eval-after-load 'mailcap
+    '(progn
+       (cond
+        ;; on OSX, maybe change mailcap-mime-data?
+        ((eq system-type 'darwin))
+        ;; on Windows, maybe change mailcap-mime-data?
+        ((eq system-type 'windows-nt))
+        (t (mailcap-parse-mailcaps)))));; Tree view for groups.  I like the organisational feel this has.
+
+  (add-hook 'gnus-group-mode-hook 'gnus-topic-mode)
+
+  ;; Threads!  I hate reading un-threaded email -- especially mailing lists.  This helps a ton!
+  (setq gnus-summary-thread-gathering-function 'gnus-gather-threads-by-subject)
+
+  ;; Also, I prefer to see only the top level message. If a message has
+  ;; several replies or is part of a thread, only show the first
+  ;; messa  'gnus-thread-ignore-subject' will ignore the subject and
+  ;; look at 'In-Reply-To:' and 'References:' headers.
+  (setq gnus-thread-hide-subtree t)
+  (setq gnus-thread-ignore-subject t)
+
+  ;; Read HTML mail
+  ;; You need install the command line brower 'w3m' and Emacs plugin 'w3m'
+  (setq mm-text-html-renderer 'w3m)
+#+end_src
+
+
+*** Attachment
+#+begin_src emacs-lisp
+  ;; Setup to send email through SMTP
+  (setq message-send-mail-function 'smtpmail-send-it
+        smtpmail-default-smtp-server "smtp.gmail.com"
+        smtpmail-smtp-service 587
+        smtpmail-local-domain "homepc")
+  (setq gnus-use-correct-string-widths nil)
+
+  (eval-after-load 'gnus-topic
+    '(progn
+       (setq gnus-message-archive-group '((format-time-string "sent.%Y")))
+       (setq gnus-server-alist '(("archive" nnfolder "archive" (nnfolder-directory "~/Templates/Mail/archive")
+                                  (nnfolder-active-file "~/Templates/Mail/archive/active")
+                                  (nnfolder-get-new-mail nil)
+                                  (nnfolder-inhibit-expiry t))))
+
+       (setq gnus-topic-topology '(("Gnus" visible)
+                                   (("misc" visible))
+                                   (("hotmail" visible nil nil))
+                                   (("gmail" visible nil nil))))
+
+       (setq gnus-topic-alist '(("gmail" ; the key of topic
+                                 "INBOX"
+                                 "[Gmail]/Sent Mail"
+                                 "[Gmail]/Bin"
+                                 "Sent Mail"
+                                 "Drafts")
+                                ("outlook" ; the key of topic
+                                 "nnimap+outlook:Inbox"
+                                 "nnimap+outlook:Drafts"
+                                 "nnimap+outlook:Sent"
+                                 "nnimap+outlook:Junk"
+                                 "nnimap+outlook:Deleted")
+                                ("misc" ; the key of topic
+                                 "nnfolder+archive:sent.2015-12"
+                                 "nnfolder+archive:sent.2016"
+                                 "nnfolder+archive:sent.2017"
+                                 "nndraft:drafts")
+                                ("Gnus")))))
+#+end_src

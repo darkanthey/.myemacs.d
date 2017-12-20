@@ -1,0 +1,148 @@
+#+TITLE: Starter Kit Python
+#+OPTIONS: toc:nil num:nil ^:nil
+
+This is part of the [[file:starter-kit.org][Emacs Starter Kit]].
+
+* Starter kit Python
+
+#+begin_src sh :exports code
+  pip install virtualenvwrapper
+  ln -s ~/.emacs.d/.python-environments/default/ ~/.virtualenvs/emacs
+  source ~/.emacs.d/.python-environments/default/bin/activate
+  pip3 install --upgrade isort pyflakes flake8 pylint pychecked
+#+end_src
+
+#+RESULTS:
+** Install Python packages
+#+begin_src emacs-lisp
+  (setq install-packages (list 'smartparens
+                               'jedi
+                               'jedi-direx
+                               'company-jedi
+                               'python-mode
+                               'auto-virtualenv
+                               'virtualenvwrapper
+                               'flycheck
+                               'flycheck-color-mode-line
+                               'py-isort
+                               'pungi
+                               'python-pep8
+                               'pylint))
+
+  (dolist (package install-packages) (package-install package))
+#+end_src
+
+
+** Use Python's python-mode.el instead of Emacs' python.el
+Replace the Python mode that comes with Emacs by the Python mode
+supplied by the Python distribution itself.
+#+begin_src emacs-lisp
+  (global-eldoc-mode -1)
+  (require 'python-mode)
+  (require 'auto-virtualenv)
+  (require 'virtualenvwrapper)
+
+  (add-to-list 'auto-mode-alist '("\\.py\\'" . python-mode))
+  (add-to-list 'interpreter-mode-alist '("python" . python-mode))
+  (add-to-list 'auto-mode-alist '("\\.egg\\'" . archive-mode))
+  (add-hook 'python-mode-hook 'run-coding-hook)
+
+  (pyvenv-activate "~/.virtualenvs/emacs")
+  (add-hook 'python-mode-hook 'auto-virtualenv-set-virtualenv)
+
+  (defun custom-python-mode-hook ()
+    (add-to-list 'company-backends 'company-jedi))
+
+  (add-hook 'python-mode-hook
+            '(lambda ()
+              (company-mode)
+              (custom-python-mode-hook)
+              (flycheck-mode t)
+              (setq-default py-smart-indentation t)
+              (setq-default py-jump-on-exception nil)
+              (setq whitespace-line-column 120)
+              (setq-default tab-width 4) ;; the width of the tab - 4 whitespace
+              (setq-default c-basic-offset 4)
+              (setq-default standart-indent 4) ;; standard width of indentation - 4 whitespace
+              (setq indent-line-function (quote insert-tab))))
+#+end_src
+
+** Jedi config
+#+srcname: jedi_config
+#+begin_src emacs-lisp
+  (require 'jedi)
+  (require 'pungi)
+  (require 'jedi-direx)
+
+  ;; Hook up to autocomplete
+  (add-to-list 'ac-sources 'ac-source-jedi-direct)
+  ;; Don't let tooltip show up automatically
+  (setq jedi:get-in-function-call-delay 10000000)
+  ;; Start completion at method dot
+  (setq jedi:complete-on-dot t)
+
+  (add-hook 'python-mode-hook
+            '(lambda ()
+              'jedi:setup ;; Enable Jedi setup on mode start
+              'jedi-config:setup-server-args ;; Buffer-specific server options
+              'jedi-config:setup-keys ;; Use custom keybinds
+              'pungi:setup-jedi))
+#+end_src
+
+
+** Smartparens Mode
+   Smart autopairing of quotes and parentheses.
+#+srcname: smartparens
+#+begin_src emacs-lisp
+  (smartparens-global-mode 1)
+  (require 'smartparens-config)
+  (show-smartparens-global-mode +1)
+#+end_src
+
+
+** py-isort
+#+begin_src emacs-lisp
+  (require 'py-isort)
+  (add-hook 'before-save-hook 'py-isort-before-save)
+#+end_src
+
+
+** Flycheck
+#+begin_src emacs-lisp
+  (add-hook 'python-mode-hook
+            '(lambda () (setq flycheck-checker 'python-pylint)))
+
+  ;; (eval-after-load 'flycheck
+  ;;   '(require 'flycheck-coala))
+#+end_src
+
+
+** Funcktion keybinding
+#+begin_src emacs-lisp
+  (eval-after-load 'python-mode '(progn
+    (let ((m python-mode-map))
+      (define-key m (kbd "C-s-e") 'py-end-of-def-or-class)
+      (define-key m (kbd "C-s-b") 'py-beginning-of-def-or-class)
+      (define-key m (kbd "C-s-l") 'py-shift-region-left)
+      (define-key m (kbd "C-s-r") 'py-shift-region-right)
+
+      (define-key m (kbd "C-.") 'jedi:goto-definition)
+      (define-key m (kbd "C-,") 'jedi:goto-definition-pop-marker)
+      (define-key m (kbd "C-?") 'jedi:show-doc)
+      (define-key m (kbd "M-/") 'jedi:get-in-function-call)
+      (define-key m (kbd "C-s-d") 'jedi-direx:pop-to-buffer))))
+#+end_src
+
+
+** Pretty lambda
+#+begin_src emacs-lisp
+  (add-hook 'python-mode-hook
+    (lambda ()
+      (push '(">=" . ?≥) prettify-symbols-alist)
+      (push '("<=" . ?≤) prettify-symbols-alist)
+      (push '("!=" . ?≠) prettify-symbols-alist)
+      (push '("def" . ?ƒ) prettify-symbols-alist)
+      (push '("sum" . ?∑) prettify-symbols-alist)
+      (push '("await" . ?⌛) prettify-symbols-alist)
+      (push '("lambda" . ?λ) prettify-symbols-alist)))
+#+end_src

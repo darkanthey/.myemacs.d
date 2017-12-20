@@ -1,0 +1,111 @@
+** JabberConfig
+
+** Install Jabber packages
+#+begin_src emacs-lisp
+  (setq install-packages (list 'jabber))
+  (dolist (package install-packages) (package-install package))
+#+end_src
+
+
+#+srcname: JabberConfig
+#+begin_src emacs-lisp
+  ;; Jabber connection settings.
+  (require 'jabber)
+  (custom-set-variables
+   '(jabber-account-list (quote (("darkanthey@gmail.com/emacs" (:password . "bmavurinyrxjxwmy") (:network-server . "talk.google.com") (:port . 5223) (:connection-type . ssl))
+                               ("andrew.grytsenko@chat.facebook.com/emacs" (:password . "8Gxw95tR") (:connection-type . network)))))
+   '(jabber-history-enabled t)
+   '(jabber-use-global-history nil)
+   '(jabber-vcard-avatars-retrieve nil)
+   '(jabber-default-status "Emacs power!!!"))
+
+  ;; Notifying of new jabber.el messages.
+  (defvar jabber-activity-jids-count 0)
+
+  (defun jabber-message-blink ()
+    (let ((count (length jabber-activity-jids)))
+      (unless (= jabber-activity-jids-count count)
+        (start-process-shell-command "blink" nil
+                                     "blink" (format "--numlockled --rate %s" count))
+        (setq jabber-activity-jids-count count))))
+
+  (add-hook 'jabber-activity-update-hook 'jabber-message-blink)
+
+  ;; don't forget to disable blinking after disconnection
+  (add-hook 'jabber-post-disconnect-hook
+       (lambda ()
+         (jabber-autoaway-stop)
+              (jabber-keepalive-stop)
+         (start-process-shell-command "blink" nil "blink")))
+
+  ;; Notifying through libnotify
+  (defvar libnotify-program "/usr/bin/notify-send")
+
+  (defun notify-send (title message)
+  (start-process "notify" " notify"
+     libnotify-program "--expire-time=3000" title message))
+
+  (defun libnotify-jabber-notify (from buf text proposed-alert)
+    "(jabber.el hook) Notify of new Jabber chat messages via libnotify"
+    (when (or jabber-message-alert-same-buffer
+              (not (memq (selected-window) (get-buffer-window-list buf))))
+      (if (jabber-muc-sender-p from)
+          (notify-send (format "(PM) %s"
+                         (jabber-jid-displayname (jabber-jid-user from)))
+                 (format "%s: %s" (jabber-jid-resource from) text)))
+        (notify-send (format "%s" (jabber-jid-displayname from))
+               text)))
+
+  (add-hook 'jabber-chat-mode-hook 'flyspell-mode)
+  (add-hook 'jabber-alert-message-hooks 'libnotify-jabber-notify)
+
+  ;; Send message on C-RET
+  (define-key jabber-chat-mode-map (kbd "RET") 'newline)
+  (define-key jabber-chat-mode-map [C-return] 'jabber-chat-buffer-send)
+
+  ;; History config
+  (defvar my-jabber-input-history '() "Variable that holds input history")
+  (make-variable-buffer-local 'my-jabber-input-history)
+
+  (defvar my-jabber-input-history-position 0 "Current position in input history")
+  (make-variable-buffer-local 'my-jabber-input-history-position)
+
+  (defvar my-jabber-input-history-current nil "Current input value")
+  (make-variable-buffer-local 'my-jabber-input-history-current)
+
+  (defun my-jabber-input-history-hook (body id)
+    (add-to-list 'my-jabber-input-history body t)
+      (setq my-jabber-input-history-position (length my-jabber-input-history)))
+      (add-hook 'jabber-chat-send-hooks 'my-jabber-input-history-hook)
+
+  (defun my-jabber-previous-input ()
+    (interactive)
+    (let (current-input (pos my-jabber-input-history-position) (len (length my-jabber-input-history)))
+      (if (= pos 0)
+          (message "%s" "No previous input")
+        (setq current-input (delete-and-extract-region jabber-point-insert (point-max)))
+        (when (= pos len) ; running first time, save current input
+          (setq my-jabber-input-history-current current-input))
+        (decf my-jabber-input-history-position)
+        (insert (nth my-jabber-input-history-position my-jabber-input-history)))))
+
+  (defun my-jabber-next-input ()
+  (interactive)
+  (let ((pos my-jabber-input-history-position) (len (length my-jabber-input-history)))
+    (cond
+     ((= pos (1- len)) ; pointing at the last element, insert saved input
+       (incf my-jabber-input-history-position)
+       (delete-region jabber-point-insert (point-max))
+       (insert my-jabber-input-history-current)
+       (setq my-jabber-input-history-current nil))
+     ((= pos len)                              ; pointing beyound last element, notify user
+       (message "%s" "No next input"))
+      (t                                ; insert next history item
+       (incf my-jabber-input-history-position)
+       (delete-region jabber-point-insert (point-max))
+       (insert (nth my-jabber-input-history-position my-jabber-input-history))))))
+
+  (define-key jabber-chat-mode-map (kbd "M-p") 'my-jabber-previous-input)
+  (define-key jabber-chat-mode-map (kbd "M-n") 'my-jabber-next-input)
+#+end_src
+

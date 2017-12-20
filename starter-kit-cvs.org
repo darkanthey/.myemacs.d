@@ -1,0 +1,156 @@
+#+TITLE: Starter Kit Ediff
+#+OPTIONS: toc:nil num:nil ^:nil
+
+This is part of the [[file:starter-kit.org][Emacs Starter Kit]].
+
+* Starter Kit Ediff
+Allow marge CVS
+
+** Install Git packages
+#+begin_src emacs-lisp
+  (setq install-packages (list 'magit 'git-timemachine 'git-gutter+))
+  (dolist (package install-packages) (package-install package))
+#+end_src
+
+** CVS require
+#+begin_src emacs-lisp
+  (require 'magit)
+  (require 'ediff)
+#+end_src
+
+
+** Full screen magit-status
+#+begin_src emacs-lisp
+  (defadvice magit-status (around magit-fullscreen activate)
+    (window-configuration-to-register :magit-fullscreen)
+    ad-do-it
+    (delete-other-windows))
+
+  (defun magit-quit-session ()
+    "Restores the previous window configuration and kills the magit buffer"
+    (interactive)
+    (kill-buffer)
+    (jump-to-register :magit-fullscreen))
+
+  (define-key magit-status-mode-map (kbd "q") 'magit-quit-session)
+#+end_src
+
+
+** Disable whitespace diffs
+#+begin_src emacs-lisp
+  (defun magit-toggle-whitespace ()
+    (interactive)
+    (if (member "-w" magit-diff-options)
+        (magit-dont-ignore-whitespace)
+      (magit-ignore-whitespace)))
+
+  (defun magit-ignore-whitespace ()
+    (interactive)
+    (add-to-list 'magit-diff-options "-w")
+    (magit-refresh))
+
+  (defun magit-dont-ignore-whitespace ()
+    (interactive)
+    (setq magit-diff-options (remove "-w" magit-diff-options))
+    (magit-refresh))
+
+  (define-key magit-status-mode-map (kbd "W") 'magit-toggle-whitespace)
+#+end_src
+
+
+#+begin_src emacs-lisp
+  (add-to-list 'auto-mode-alist '("COMMIT_EDITMSG$" . diff-mode))
+#+end_src
+
+
+#+srcname: persp with eshell, magit
+#+begin_src emacs-lisp
+  ;; eshell
+  (persp-def-buffer-save/load
+   :mode 'eshell-mode :tag-symbol 'def-eshell-buffer
+   :save-vars '(major-mode default-directory))
+
+  ;; compile
+  (persp-def-buffer-save/load
+   :mode 'compilation-mode :tag-symbol 'def-compilation-buffer
+   :save-vars '(major-mode default-directory compilation-directory
+                           compilation-environment compilation-arguments))
+
+  ;; magit-status
+  (with-eval-after-load "magit-autoloads"
+    (autoload 'magit-status-mode "magit")
+    (autoload 'magit-refresh "magit")
+    (persp-def-buffer-save/load
+     :mode 'magit-status-mode :tag-symbol 'def-magit-status-buffer
+     :save-vars '(major-mode default-directory)
+     :after-load-function #'(lambda (b &rest _)
+                              (with-current-buffer b (magit-refresh)))))
+#+end_src
+
+
+** Customize Ediff for merge
+#+srcname: starter-kit-ediff
+#+begin_src emacs-lisp
+  (setq magit-auto-revert-mode nil)
+
+  (defvar ediff-after-quit-hooks nil
+    "* Hooks to run after ediff or emerge is quit.")
+
+  (defadvice ediff-quit (after edit-after-quit-hooks activate)
+    (run-hooks 'ediff-after-quit-hooks))
+
+  (setq git-mergetool-emacsclient-ediff-active nil)
+
+  (setq ediff-window-setup-function 'ediff-setup-windows-plain)
+  (setq ediff-split-window-function 'split-window-horizontally)
+
+  (defun local-ediff-before-setup-hook ()
+    (setq local-ediff-saved-frame-configuration (current-frame-configuration))
+    (setq local-ediff-saved-window-configuration (current-window-configuration))
+    (if git-mergetool-emacsclient-ediff-active
+        (raise-frame)))
+
+  (defun local-ediff-quit-hook ()
+    (set-frame-configuration local-ediff-saved-frame-configuration)
+    (set-window-configuration local-ediff-saved-window-configuration))
+
+  (defun local-ediff-suspend-hook ()
+    (set-frame-configuration local-ediff-saved-frame-configuration)
+    (set-window-configuration local-ediff-saved-window-configuration))
+
+  (add-hook 'ediff-before-setup-hook 'local-ediff-before-setup-hook)
+  (add-hook 'ediff-quit-hook 'local-ediff-quit-hook 'append)
+  (add-hook 'ediff-suspend-hook 'local-ediff-suspend-hook 'append)
+
+  ;; Useful for ediff merge from emacsclient.
+  (defun git-mergetool-emacsclient-ediff (local remote base merged)
+    (setq git-mergetool-emacsclient-ediff-active t)
+    (if (file-readable-p base)
+        (ediff-merge-files-with-ancestor local remote base nil merged)
+      (ediff-merge-files local remote nil merged))
+    (recursive-edit))
+
+  (defun git-mergetool-emacsclient-ediff-after-quit-hook ()
+    (exit-recursive-edit))
+
+  (add-hook 'ediff-after-quit-hooks 'git-mergetool-emacsclient-ediff-after-quit-hook 'append)
+#+end_src
+
+
+** Restoring the windows after Ediff quits
+#+begin_src emacs-lisp
+  (winner-mode)
+  (add-hook 'ediff-after-quit-hook-internal 'winner-undo)
+#+end_src
+
+** Abbreviate the version control information in the mode line
+#+begin_src emacs-lisp
+  (defun my-shorten-vc-mode-line (string)
+    (cond
+     ((string-prefix-p "Git" string)
+      (concat "G" (substring string 3)))
+     (t
+      string)))
+
+  (advice-add 'vc-git-mode-line-string :filter-return 'my-shorten-vc-mode-line)
+#+end_src

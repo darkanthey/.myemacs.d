@@ -1,0 +1,73 @@
+:#+TITLE: Starter Kit Haskell
+#+OPTIONS: toc:nil num:nil ^:nil
+
+This is part of the [[file:starter-kit.org][Emacs Starter Kit]].
+
+* Starter Kit Haskell
+  :PROPERTIES:
+  :results:  silent
+  :END:
+Support for editing Haskell
+
+** Install Haskell packages
+#+begin_src emacs-lisp
+  (setq install-packages (list 'haskell-mode
+                               'ghc
+                               'company-ghc
+                               'shm
+                               'hi2
+                               'intero
+                               'hindent))
+  (dolist (package install-packages) (package-install package))
+#+end_src
+
+
+** Cabal sandbox path
+#+begin_src emacs-lisp
+  (let ((my-cabal-path (expand-file-name "~/.emacs.d/.haskell-environments/.cabal-sandbox/bin")))
+    (setenv "PATH" (concat my-cabal-path path-separator (getenv "PATH")))
+    (add-to-list 'exec-path my-cabal-path))
+  (custom-set-variables '(haskell-tags-on-save t))
+#+end_src
+
+
+** Haskell mode hook
+#+begin_src emacs-lisp
+  (add-hook 'haskell-mode-hook
+            (lambda ()
+             'run-coding-hook
+             'turn-on-haskell-indentation
+             'turn-on-hi2
+             'hindent-mode
+             'intero-mode
+             ;;(haskell-indent-spaces . 4)
+             ((hindent-style . "johan-tibell"))))
+
+  ;;(add-to-list 'company-backends 'company-ghc)
+#+end_src
+
+
+** Funcktion keybinding
+#+begin_src emacs-lisp
+  (custom-set-variables
+    '(haskell-process-suggest-remove-import-lines t)
+    '(haskell-process-auto-import-loaded-modules t)
+    '(haskell-process-log t))
+  (eval-after-load 'haskell-mode '(progn
+    (define-key haskell-mode-map (kbd "s-i") 'haskell-navigate-imports)
+    (define-key haskell-mode-map (kbd "C-c C-l") 'haskell-process-load-or-reload)
+    (define-key haskell-mode-map (kbd "C-c C-z") 'haskell-interactive-switch)
+    (define-key haskell-mode-map (kbd "C-c C-n C-t") 'haskell-process-do-type)
+    (define-key haskell-mode-map (kbd "C-c C-n C-i") 'haskell-process-do-info)
+    (define-key haskell-mode-map (kbd "C-c C-n C-c") 'haskell-process-cabal-build)
+    (define-key haskell-mode-map (kbd "C-c C-n c") 'haskell-process-cabal)))
+    ;;(define-key haskell-mode-map (kbd "SPC") 'haskell-mode-contextual-space)))
+  (eval-after-load 'haskell-cabal '(progn
+    (define-key haskell-cabal-mode-map (kbd "C-c C-z") 'haskell-interactive-switch)
+    (define-key haskell-cabal-mode-map (kbd "C-c C-k") 'haskell-interactive-mode-clear)
+    (define-key haskell-cabal-mode-map (kbd "C-c C-c") 'haskell-process-cabal-build)
+    (define-key haskell-cabal-mode-map (kbd "C-c c")
+    'haskell-process-cabal)))
+#+end_src
+
+

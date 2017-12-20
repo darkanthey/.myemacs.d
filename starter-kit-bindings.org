@@ -1,0 +1,359 @@
+#+TITLE: Starter Kit Bindings
+#+OPTIONS: toc:nil num:nil ^:nil
+
+This is part of the [[file:starter-kit.org][Emacs Starter Kit]].
+
+* Starter Kit Bindings
+
+** Turn on the menu bar for exploring new modes
+#+begin_src emacs-lisp
+  (global-set-key [f1] 'menu-bar-mode)
+  (global-set-key [f2] 'cua-mode)
+#+end_src
+
+
+** Highlight keys
+#+srcname: Highlight_keys
+#+begin_src emacs-lisp
+  (require 'highlight-symbol)
+  (global-set-key [f3] 'highlight-symbol-next)
+  (global-set-key [(control f3)] 'highlight-symbol-at-point)
+  (global-set-key [(shift f3)] 'highlight-symbol-prev)
+  (global-set-key [(meta f3)] 'highlight-symbol-prev)
+  (global-set-key [(control meta f3)] 'highlight-symbol-query-replace)
+  (provide 'init-highlight-symbol)
+#+end_src
+
+
+** Bookmarcs
+#+begin_src emacs-lisp
+  (global-set-key [f4] 'bookmark-bmenu-list)
+  (global-set-key [(shift f4)] 'bookmark-set)
+  (global-set-key [(control f4)] 'bookmark-jump)
+  (global-set-key [(meta f4)] 'bs-show)
+#+end_src
+
+
+** Workspace, bs-show
+#+begin_src emacs-lisp
+  (global-set-key [f5] 'occur)
+
+  (global-set-key [f6] 'hs-toggle-hiding)
+  (global-set-key [(shift f6)] 'hs-show-all)
+  (global-set-key [(control f6)] 'hs-hide-all)
+
+  (global-set-key [f7] 'neotree-toggle)
+  (global-set-key [f8] 'ffip)
+  (global-set-key [(control f8)] 'projectile-ibuffer)
+  (global-set-key (kbd "C-x C-x") 'projectile-ibuffer)
+  (global-set-key [(meta f8)] 'projectile-switch-project)
+#+end_src
+
+
+** Direx
+#+begin_src emacs-lisp
+  (global-set-key (kbd "C-x C-;") 'direx-project:jump-to-project-root)
+#+end_src
+
+
+** Copy/delete and duplicate visual line
+#+begin_src emacs-lisp
+  (global-set-key (kbd "C-M-d") 'duplicate-line)
+  (global-set-key (kbd "C-l") 'copy-line-or-region)
+  (global-set-key (kbd "M-<delete>") 'delete-word)
+  (global-set-key (kbd "C-<delete>") 'backward-delete-word)
+  (global-set-key (kbd "C-d") 'backward-kill-word)
+  (global-set-key (kbd "C-S-w") (quote copy-word))
+#+end_src
+
+
+** Ace jump mode
+#+begin_src emacs-lisp
+  (global-set-key (kbd "C-'") 'ace-jump-mode)
+#+end_src
+
+
+** Expond region
+#+begin_src emacs-lisp
+  (global-set-key (kbd "C-c e") 'er/expand-region)
+#+end_src
+
+
+** Align your code in a pretty way
+#+begin_src emacs-lisp
+  (global-set-key (kbd "C-x \\") 'align-regexp)
+#+end_src
+
+
+** Completion that uses many different methods to find options.
+#+begin_src emacs-lisp
+  (global-set-key (kbd "M-/") 'hippie-expand)
+#+end_src
+
+
+** Perform general cleanup
+#+begin_src emacs-lisp
+  (global-set-key (kbd "C-c n") 'cleanup-buffer)
+#+end_src
+
+
+** Font size
+#+begin_src emacs-lisp
+  (define-key global-map (kbd "C-+") 'text-scale-increase)
+  (define-key global-map (kbd "C--") 'text-scale-decrease)
+#+end_src
+
+
+** Use regex searches by default
+#+begin_src emacs-lisp
+  (global-set-key (kbd "C-s") 'isearch-forward-regexp)
+  (global-set-key (kbd "C-r") 'isearch-backward-regexp)
+  (global-set-key (kbd "C-M-s") 'isearch-forward)
+  (global-set-key (kbd "C-M-r") 'isearch-backward)
+#+end_src
+
+
+** Jump to a definition in the current file.
+#+begin_src emacs-lisp
+  (global-set-key (kbd "C-x C-i") 'imenu)
+  (global-set-key (kbd "C-x C-y") 'helm-semantic-or-imenu)
+#+end_src
+
+
+** File finding
+#+begin_src emacs-lisp
+  (global-set-key (kbd "C-x M-f") 'ido-find-file-other-window)
+  (global-set-key (kbd "C-x C-M-f") 'find-file-in-project)
+  (global-set-key (kbd "C-x f") 'recentf-ido-find-file)
+  (global-set-key (kbd "C-x C-p") 'find-file-at-point)
+  (global-set-key (kbd "C-c y") 'bury-buffer)
+  (global-set-key (kbd "C-c r") 'revert-buffer)
+  (global-set-key (kbd "M-`") 'file-cache-minibuffer-complete)
+  (global-set-key (kbd "C-x C-b") 'ibuffer)
+#+end_src
+
+
+** Window switching.
+=C-x o= goes to the next window, Shift+direction arrow moves between frames.
+#+begin_src emacs-lisp
+  (windmove-default-keybindings)
+  (global-set-key (kbd "C-x O") (lambda () (interactive) (other-window -1))) ;; back one
+  (global-set-key (kbd "C-x C-o") (lambda () (interactive) (other-window 2))) ;; forward two
+  (setq windmove-wrap-around t)
+#+end_src
+
+
+** Resizing Windows on the fly
+When your frame (i.e., the main Emacs window) is split into different parts (e.g. using =C-x 2= or =C-x 3=), you sometimes want to resize these parts dynamically. This defines =Shift-C-[arrow keys]= so you can do this easily.
+
+#+srcname: resize-splits
+#+begin_src emacs-lisp
+  ;; resizing 'windows' (i.e., inside the frame)
+  (global-set-key (kbd "S-C-<left>") 'shrink-window-horizontally)
+  (global-set-key (kbd "S-C-<right>") 'enlarge-window-horizontally)
+  (global-set-key (kbd "S-C-<down>") 'shrink-window)
+  (global-set-key (kbd "S-C-<up>") 'enlarge-window)
+#+end_src
+
+
+** Rotate Windows in a Frame
+When windows get out of order, you can rotate them.
+
+#+source: rotate-windows
+#+begin_src emacs-lisp
+  (defun rotate-windows ()
+    "Rotate your windows" (interactive) (cond ((not (> (count-windows) 1)) (message "You can't rotate a single window!"))
+  (t
+   (setq i 1)
+   (setq numWindows (count-windows))
+   (while  (< i numWindows)
+     (let* (
+            (w1 (elt (window-list) i))
+            (w2 (elt (window-list) (+ (% i numWindows) 1)))
+            (b1 (window-buffer w1))
+            (b2 (window-buffer w2))
+            (s1 (window-start w1))
+            (s2 (window-start w2))
+            )
+       (set-window-buffer w1  b2)
+       (set-window-buffer w2 b1)
+       (set-window-start w1 s2)
+       (set-window-start w2 s1)
+       (setq i (1+ i)))))))
+
+  (global-set-key (kbd "C-c m") 'rotate-windows)
+#+end_src
+
+
+** Indentation help
+#+begin_src emacs-lisp
+  (global-set-key (kbd "C-x ^") 'join-line)
+#+end_src
+
+
+** Mark text between parentheses (a sexp) for selection
+ Mark text between parentheses. From [[http://stackoverflow.com/questions/5194417/how-to-mark-the-text-between-the-parentheses-in-emacs][this Stackoverflow answer]].
+#+source: backward-up-sexp
+#+begin_src emacs-lisp
+  (defun backward-up-sexp (arg)
+    (interactive "p")
+    (let ((ppss (syntax-ppss)))
+      (cond ((elt ppss 3)
+             (goto-char (elt ppss 8))
+             (backward-up-sexp (1- arg)))
+            ((backward-up-list arg)))))
+
+  (global-set-key [remap backward-up-list] 'backward-up-sexp)
+#+end_src
+
+
+** Start eshell or switch to it if it's active
+#+begin_src emacs-lisp
+  (global-set-key (kbd "C-x m") 'eshell)
+  (global-set-key (kbd "C-x M") (lambda () (interactive) (eshell t)))
+  (global-set-key (kbd "C-x M-m") 'shell)
+#+end_src
+
+
+** Smex replaces M-x
+    Smex replaces M-x, and is built on top of ido-mode. See
+    http://github.com/nonsequitur/smex or
+    http://www.emacswiki.org/emacs/Smex for details.
+#+srcname: smex
+#+begin_src emacs-lisp
+  (require 'smex)
+  (smex-initialize)
+  (global-set-key (kbd "M-x") 'smex)
+  (global-set-key (kbd "C-x C-m") 'smex-major-mode-commands) ;; supersedes binding in starter-kit-bindings.org
+  ;; This is your old M-x.
+  (global-set-key (kbd "C-c C-c M-x") 'execute-extended-command)
+  (setq smex-show-unbound-commands t)
+  (smex-auto-update 30)
+#+end_src
+
+
+** Delete horizontal space
+#+begin_src emacs-lisp
+  (global-set-key (kbd "C-x /") 'delete-horizontal-space)
+#+end_src
+
+** Applications
+#+begin_src emacs-lisp
+  (global-set-key (kbd "C-c j") (lambda () (interactive) (switch-or-start 'jabber-connect "*-jabber-*")))
+  (global-set-key (kbd "C-c i") (lambda () (interactive) (switch-or-start (lambda ()
+                                                                       (rcirc-connect "irc.freenode.net"))
+                                                                     "*irc.freenode.net*")))
+  (global-set-key (kbd "C-c J") 'jabber-send-presence)
+  (global-set-key (kbd "C-c M-j") 'jabber-disconnect)
+  (global-set-key (kbd "C-x C-j") 'jabber-activity-switch-to)
+#+end_src
+
+** Activate occur easily inside isearch
+#+begin_src emacs-lisp
+  (define-key isearch-mode-map (kbd "C-o")
+    (lambda () (interactive)
+      (let ((case-fold-search isearch-case-fold-search))
+        (occur (if isearch-regexp isearch-string (regexp-quote isearch-string))))))
+#+end_src
+
+
+** Org-mode
+Two global binding for Org-mode (see [[file:starter-kit-org.org][starter-kit-org]])
+#+begin_src emacs-lisp
+  (global-set-key (kbd "C-c l") 'org-store-lin)
+  (global-set-key (kbd "C-c c") 'org-capture)
+  (global-set-key (kbd "C-c a") 'org-agenda)
+  (global-set-key (kbd "C-c b") 'org-iswitchb)
+#+end_src
+
+
+** Move more quickly
+#+begin_src emacs-lisp
+  (global-set-key (kbd "C-S-n")
+                  (lambda () (interactive) (ignore-errors (next-line 5))))
+
+  (global-set-key (kbd "C-S-p")
+                  (lambda () (interactive) (ignore-errors (previous-line 5))))
+
+  (global-set-key (kbd "C-S-f")
+                  (lambda () (interactive) (ignore-errors (forward-char 5))))
+
+  (global-set-key (kbd "C-S-b")
+                  (lambda () (interactive) (ignore-errors (backward-char 5))))
+#+end_src
+
+
+** Magit
+It's to the point now where I almost can't use git without magit.
+- [[http://zagadka.vm.bytemark.co.uk/magit/][Homepage]]
+- [[http://zagadka.vm.bytemark.co.uk/magit/magit.html][Manual]]
+- [[http://groups.google.com/group/magit/][Mailing list]]
+#+begin_src emacs-lisp
+  (global-set-key (kbd "C-x g") 'magit-status)
+#+end_src
+
+#+resname:
+: magit-status
+
+
+*** Search files tools
+
+** Help should search more than just commands
+#+begin_src emacs-lisp
+  (global-set-key (kbd "C-h a") 'apropos)
+#+end_src
+
+
+** Cscope keybinding
+#+begin_src emacs-lisp
+  (global-set-key (kbd "C-c C-g") 'helm-cscope-find-global-definition)
+  (global-set-key (kbd "C-c C-y") 'cscope-find-functions-calling-this-function)
+#+end_src
+
+
+** Rgrep
+Rgrep is infinitely useful in multi-file projects.
+(see [[elisp:(describe-function 'rgrep)]])
+#+begin_src emacs-lisp
+  (global-set-key (kbd "C-x C-r") 'rgrep)
+#+end_src
+
+
+*** Undo tools
+
+** Winner mode
+    Remember the previous window configurations and jump back to them
+    as needed (as when, e.g., some other mode messes with your working
+    layout.) Rebind the default keys to C-c-up and C-c-down as in a moment
+    we'll assign C-c-right for rotating windows.
+#+source: local-winner-mode
+#+begin_src emacs-lisp
+  (winner-mode 1)
+  (global-set-key (kbd "C-c <up>") 'winner-undo)
+  (global-set-key (kbd "C-c <down>") 'winner-redo)
+#+end_src
+
+
+** Don't Use Suspend Frame
+By default C-z is bound to "Suspend Frame", which minimizes Emacs. I find this of no use. Bind it to "Undo" instead.
+#+source: disable-suspend-frame
+#+begin_src emacs-lisp
+  ;; I can't remember ever having meant to use C-z to suspend the frame
+  (global-set-key (kbd "C-z") 'undo)
+#+end_src
+
+
+** CUA mode for rectangle editing
+Sometimes very useful (but we don't use the core cua keys.)
+#+source: cua-rectangle
+#+begin_src emacs-lisp
+  (setq cua-enable-cua-keys nil)
+  (cua-mode)
+#+end_src
+
+
+** Closing
+#+begin_src emacs-lisp
+  (provide 'starter-kit-bindings)
+  ;;; starter-kit-bindings.el ends here
+#+end_src
