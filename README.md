@@ -53,7 +53,7 @@ sudo apt install hunspell
 ## Python
 sudo apt install pyflakes
 virtualenv --no-site-packages --distribute -p /usr/bin/python3.6 ~/.emacs.d/.python-environments/default
-~/.emacs.d/.python-environments/default/bin/pip3 install --upgrade jedi isort pylint pyflakes pep8 autopep8 importmagic yapf coala-bears
+~/.emacs.d/.python-environments/default/bin/pip3 install --use-wheel --upgrade jedi isort pylint pyflakes pep8 autopep8 importmagic yapf coala-bears
 ln -s ~/.emacs.d/.python-environments/default ~/.virtualenvs/emacs
 
 ## Haskell

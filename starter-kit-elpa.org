@@ -10,50 +10,52 @@ The following packages should always be installed
 
 #+begin_src emacs-lisp
   (defvar starter-kit-packages (list 'zenburn-theme ;Design mode
-                                     'material-theme
-                                     'powerline
-                                     'rainbow-delimiters
-                                     'color-identifiers-mode
-                                     'highlight-symbol
+				     'material-theme
+				     'powerline
+				     'rainbow-delimiters
+				     'color-identifiers-mode
+				     'highlight-symbol
 
-                                     'package-utils ;;package-utils-upgrade-all
+				     'package-utils ;;package-utils-upgrade-all
 
-                                     'fuzzy
+				     'fuzzy
 
-                                     'ggtags ;; Tagging
-                                     'helm-cscope
+				     'ggtags ;; Tagging
+				     'helm-cscope
 
-                                     'smex
-                                     'browse-kill-ring
-                                     'ace-jump-mode
+				     'smex
+				     'browse-kill-ring
+				     'ace-jump-mode
 
-                                     'org ;; Org packages
-                                     'org-ac
-                                     'org-notebook
+				     'org ;; Org packages
+				     'org-ac
 
-                                     'neotree
-                                     'undo-tree
-                                     'expand-region
-                                     'find-file-in-project
+				     'neotree
+				     'undo-tree
+				     'expand-region
+				     'find-file-in-project
 
-                                     'yasnippet
-                                     'yasnippet-bundle
-                                     's ;;For prodigy, projectile, kit-defuns
-                                     'multiple-cursors
-                                     'helm
-                                     'helm-swoop
-                                     'helm-projectile
+				     'yasnippet
+				     'yasnippet-bundle
+				     's ;;For prodigy, projectile, kit-defuns
+				     'multiple-cursors
+				     'helm
+				     'helm-swoop
+				     'helm-projectile
 
-                                     ;; Workgroups libs
-                                     'workgroups2
-                                     'projectile
-                                     'persp-mode
-                                     'persp-mode-projectile-bridge
+				     ;; Workgroups libs
+				     'workgroups2
+				     'projectile
+				     'persp-mode
+				     'persp-mode-projectile-bridge
 
-                                     'yaml-mode
+				     'flycheck
+				     'flycheck-color-mode-line
 
-                                     'e2wm
-                                     'prodigy)
+				     'yaml-mode
+				     'smart-shift
+				     'e2wm
+				     'prodigy)
     "Libraries that should be installed by default.")
 #+end_src
 

@@ -100,15 +100,34 @@ Set this to whatever browser you use e.g...
 
 ** Indent settings
 #+begin_src emacs-lisp
-  (setq-default indent-tabs-mode nil) ;; disable the ability to set margins TAB
-  (setq-default tab-width 2) ;; the width of the tab - 4 whitespace
-  (setq-default tab-stop-list (number-sequence 2 200 2))
-  (setq-default c-basic-offset 2)
-  (setq-default standart-indent 2) ;; standard width of indentation - 4 whitespace
-  ;; (setq-default lisp-body-indent 2) ;; shift Lisp-4 expression whitespace
+  (defun my-setup-indent (n)
+    ;; java/c/c++
+    (setq-local standard-indent n)
+    (setq-local c-basic-offset n)
+    ;; web development
+    (setq-local javascript-indent-level n) ; javascript-mode
+    (setq-local js-indent-level n) ; js-mode
+    (setq-local react-indent-level n) ; react-mode
+    (setq-local js2-basic-offset n) ; js2-mode, in latest js2-mode, it's alias of js-indent-level
+    (setq-local web-mode-attr-indent-offset n) ; web-mode
+    (setq-local web-mode-code-indent-offset n) ; web-mode, js code in html file
+    (setq-local web-mode-css-indent-offset n) ; web-mode, css in html file
+    (setq-local web-mode-markup-indent-offset n) ; web-mode, html tag in html file
+    (setq-local web-mode-sql-indent-offset n) ; web-mode
+    (setq-local web-mode-attr-value-indent-offset n) ; web-mode
+    (setq-local css-indent-offset n) ; css-mode
+    ;; shell scripts
+    (setq-local sh-basic-offset n)
+    (setq-local sh-indentation n))
 
-  (setq indent-line-function (quote insert-tab))
-  (setq lisp-indent-function 'common-lisp-indent-function)
+  (defun my-personal-code-style (ident)
+    (interactive)
+    (message "My personal code style!")
+    ;; use space instead of tab
+    (setq whitespace-line-column 120)
+    (setq indent-tabs-mode nil)
+    ;; indent spaces width
+    (my-setup-indent ident))
 #+end_src
 
 
@@ -126,8 +145,8 @@ If launching Emacs as in windowing system, show the menu. If launching in a tty/
 #+source: starter-kit-no-menu-in-tty
 #+begin_src emacs-lisp
   (if window-system
-      (menu-bar-mode t)
-      (menu-bar-mode -1))
+    (menu-bar-mode t)
+    (menu-bar-mode -1))
 #+end_src
 
 
@@ -176,8 +195,7 @@ ido-mode is like magic pixie dust!
 
 
 *** possible issues/resolutions with flyspell
-Most of the solution came from [[http://www.emacswiki.org/emacs/FlySpell][EmacsWiki-FlySpell]].  Here is one
-possible fix.
+Most of the solution came from [[http://www.emacswiki.org/emacs/FlySpell][EmacsWiki-FlySpell]].
 
 
 ** Hippie expand: at times perhaps too hip
@@ -191,15 +209,7 @@ possible fix.
   (add-hook 'prog-mode-hook 'coding-hooks)
 
   (defun coding-hooks ()
-    (require 'flycheck)
     (require 'rainbow-delimiters)
-
-    (run-hooks 'flycheck)
-
-    (eval-after-load 'flycheck '(progn
-      (let ((m flycheck-mode-map))
-        (define-key m (kbd "C-s-j") 'flycheck-previous-error)
-        (define-key m (kbd "C-s-k") 'flycheck-next-error))))
 
     (local-comment-auto-fill)
     (turn-on-hl-line-mode)
@@ -209,17 +219,14 @@ possible fix.
 
     (autoload 'rainbow-delimiters-mode "rainbow-delimiters")
 
-    ;; (require 'idle-highlight-mode)
-    ;; (autoload 'idle-highlight-mode "idle-highlight-mode")
-    ;; (idle-highlight-mode t)
-    ;; (highlight-indentation-current-column-mode)
-
     (global-prettify-symbols-mode +1)
 
     (font-lock-add-keywords
      nil '(("\\<\\(FIX\\|TODO\\|FIXME\\|HACK\\|REFACTOR\\)\\:"
             1 font-lock-warning-face prepend)))
 
+    (add-hook 'before-save-hook 'cleanup-buffer)
+    (flycheck-custom)
     (rainbow-delimiters-mode))
 
   (defun run-coding-hook ()
@@ -232,35 +239,41 @@ possible fix.
 
 ** Flycheck
 #+begin_src emacs-lisp
-  (add-hook 'prog-mode-hook
-    (lambda ()
-      (defun flycheck-moder(param)
-        (interactive)
-        (flycheck-mode param))
+  (defun flycheck-custom ()
+    (require 'flycheck)
+    (flycheck-mode)
+    (run-hooks 'flycheck)
 
-      (defun flycheck-disable()
-        (flycheck-moder nil))
+    (defun flycheck-moder(param)
+      (interactive)
+      (flycheck-mode param))
 
-      (defun flycheck-enable()
-        (flycheck-moder t))
+    (defun flycheck-disable()
+      (flycheck-moder nil))
 
-      (custom-set-variables
-       '(flycheck-run-in-place nil)
-       '(flycheck-log-level 0))
-      (custom-set-variables
-       '(flycheck-run-in-place nil)
-       '(flycheck-log-level 0))
-      (custom-set-faces
-       '(flycheck-error ((t (:underline "red4"))))
-       '(flycheck-error-face ((t (:background "brown4"))))
-       '(flycheck-fringe-error ((t nil)))
-       '(flycheck-fringe-warning ((t nil)))
-       '(flycheck-warning ((t (:underline "dark orange"))))
-       '(flycheck-warning-face ((t (:background "chocolate4"))))
-       '(flymake-errline ((((class color)) (:underline "red"))))
-       '(flymake-warnline ((((class color)) (:underline "yellow")))))
+    (defun flycheck-enable()
+      (flycheck-moder t))
 
-      (eval-after-load "flycheck"
-        '(add-hook 'flycheck-mode-hook 'flycheck-color-mode-line-mode))))
+    (custom-set-variables
+     '(flycheck-run-in-place nil)
+     '(flycheck-log-level 0))
+    (custom-set-variables
+     '(flycheck-run-in-place nil)
+     '(flycheck-log-level 0))
+    (custom-set-faces
+     '(flycheck-error ((t (:underline "red4"))))
+     '(flycheck-error-face ((t (:background "brown4"))))
+     '(flycheck-fringe-error ((t nil)))
+     '(flycheck-fringe-warning ((t nil)))
+     '(flycheck-warning ((t (:underline "dark orange"))))
+     '(flycheck-warning-face ((t (:background "chocolate4"))))
+     '(flymake-errline ((((class color)) (:underline "red"))))
+     '(flymake-warnline ((((class color)) (:underline "yellow")))))
+
+    (eval-after-load "flycheck"
+      '(progn
+        (let ((m flycheck-mode-map))
+          (define-key m (kbd "C-s-j") 'flycheck-previous-error)
+          (define-key m (kbd "C-s-k") 'flycheck-next-error))
+        (add-hook 'flycheck-mode-hook 'flycheck-color-mode-line-mode))))
 #+end_src
-

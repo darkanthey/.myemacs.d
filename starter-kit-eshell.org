@@ -11,6 +11,8 @@ This is part of the [[file:starter-kit.org][Emacs Starter Kit]].
         eshell-save-history-on-exit t
         eshell-cmpl-dir-ignore "\\`\\(\\.\\.?\\|CVS\\|\\.svn\\|\\.git\\)/\\'")
 
+  (add-hook 'sh-mode-hook 'run-coding-hook)
+
   (eval-after-load 'esh-opt
     '(progn
        (require 'em-cmpl)

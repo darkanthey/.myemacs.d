@@ -22,11 +22,8 @@ This is part of the [[file:starter-kit.org][Emacs Starter Kit]].
                                'python-mode
                                'auto-virtualenv
                                'virtualenvwrapper
-                               'flycheck
-                               'flycheck-color-mode-line
                                'py-isort
                                'pungi
-                               'python-pep8
                                'pylint))
 
   (dolist (package install-packages) (package-install package))
@@ -42,30 +39,30 @@ supplied by the Python distribution itself.
   (require 'auto-virtualenv)
   (require 'virtualenvwrapper)
 
-  (add-to-list 'auto-mode-alist '("\\.py\\'" . python-mode))
-  (add-to-list 'interpreter-mode-alist '("python" . python-mode))
-  (add-to-list 'auto-mode-alist '("\\.egg\\'" . archive-mode))
+  ;; (add-to-list 'auto-mode-alist '("\\.py\\'" . python-mode))
+  ;; (add-to-list 'interpreter-mode-alist '("python" . python-mode))
+  ;; (add-to-list 'auto-mode-alist '("\\.egg\\'" . archive-mode))
   (add-hook 'python-mode-hook 'run-coding-hook)
 
   (pyvenv-activate "~/.virtualenvs/emacs")
   (add-hook 'python-mode-hook 'auto-virtualenv-set-virtualenv)
 
   (defun custom-python-mode-hook ()
-    (add-to-list 'company-backends 'company-jedi))
+    (add-to-list 'company-backends
+		 'company-jedi
+		 'company-mode
+		 'auto-virtualenv-set-virtualenv))
 
   (add-hook 'python-mode-hook
-            '(lambda ()
-              (company-mode)
-              (custom-python-mode-hook)
-              (flycheck-mode t)
-              (setq-default py-smart-indentation t)
-              (setq-default py-jump-on-exception nil)
-              (setq whitespace-line-column 120)
-              (setq-default tab-width 4) ;; the width of the tab - 4 whitespace
-              (setq-default c-basic-offset 4)
-              (setq-default standart-indent 4) ;; standard width of indentation - 4 whitespace
-              (setq indent-line-function (quote insert-tab))))
+	    '(lambda ()
+	      (custom-python-mode-hook)
+              (my-personal-code-style 4)
+	      (flycheck-mode t)
+	      (setq-default py-smart-indentation t)
+	      (setq-default py-jump-on-exception nil)
+	      (setq indent-line-function (quote insert-tab))))
 #+end_src
+
 
 ** Jedi config
 #+srcname: jedi_config
