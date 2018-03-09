@@ -42,3 +42,9 @@ supplied by the Scala distribution itself.
 
   ;;(add-to-list 'ensime-doc-lookup-map '("^com\\.example\\." . make-example-doc-url))
 #+end_src
+
+#+source: message-line
+#+begin_src emacs-lisp
+  (message "------ Starter Kit Scala loaded ------")
+#+end_src
+

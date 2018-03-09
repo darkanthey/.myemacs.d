@@ -223,3 +223,10 @@ many email and/or newsgroup sources).
                                  "nndraft:drafts")
                                 ("Gnus")))))
 #+end_src
+
+
+#+source: message-line
+#+begin_src emacs-lisp
+  (message "------ Starter Kit Gnus loaded ------")
+#+end_src
+

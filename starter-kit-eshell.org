@@ -28,7 +28,6 @@ This is part of the [[file:starter-kit.org][Emacs Starter Kit]].
                     '("gunzip" "gz\\'"))
        (add-to-list 'eshell-command-completions-alist
                     '("tar" "\\(\\.tar|\\.tgz\\|\\.tar\\.gz\\)\\'"))))
-       ;;(add-to-list 'eshell-output-filter-functions 'eshell-handle-ansi-color)))
 #+end_src
 
 The =eshell= directory holds alias definitions and history
@@ -40,3 +39,9 @@ is pre-populated with some generally applicable aliases.
 #+begin_src emacs-lisp
   (setq eshell-directory-name (expand-file-name "./" (expand-file-name "eshell" dotfiles-dir)))
 #+end_src
+
+#+source: message-line
+#+begin_src emacs-lisp
+  (message "------ Starter Kit Shell loaded ------")
+#+end_src
+

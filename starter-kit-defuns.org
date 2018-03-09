@@ -327,3 +327,10 @@ a lambda doesn't already exist in the list.
       (cd "/sudo::/")
       (async-shell-command command)))
 #+end_src
+
+
+#+source: message-line
+#+begin_src emacs-lisp
+  (message "------ Starter Kit Defun loaded ------")
+#+end_src
+

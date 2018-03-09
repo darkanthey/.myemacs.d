@@ -37,8 +37,7 @@ Things that don't fit anywhere else.
   (set-selection-coding-system 'utf-8)
   (set-default-coding-systems 'utf-8)
 
-  (setq ;; Disable backup/autosave files
-        make-backup-files nil
+  (setq make-backup-files nil
         auto-save-default nil
         auto-save-list-file-name nil
 
@@ -187,7 +186,7 @@ ido-mode is like magic pixie dust!
   (set-default 'imenu-use-popup-menu nil)
 
   (add-hook 'text-mode-hook 'turn-on-auto-fill)
-  (add-hook 'text-mode-hook 'turn-on-flyspell)
+  ;; (add-hook 'text-mode-hook 'turn-on-flyspell)
 
   (defalias 'yes-or-no-p 'y-or-n-p)
   (random t) ;; Seed the random-number generator
@@ -241,7 +240,6 @@ Most of the solution came from [[http://www.emacswiki.org/emacs/FlySpell][EmacsW
 #+begin_src emacs-lisp
   (defun flycheck-custom ()
     (require 'flycheck)
-    (flycheck-mode)
     (run-hooks 'flycheck)
 
     (defun flycheck-moder(param)
@@ -270,10 +268,16 @@ Most of the solution came from [[http://www.emacswiki.org/emacs/FlySpell][EmacsW
      '(flymake-errline ((((class color)) (:underline "red"))))
      '(flymake-warnline ((((class color)) (:underline "yellow")))))
 
-    (eval-after-load "flycheck"
+    (eval-after-load 'flycheck
       '(progn
         (let ((m flycheck-mode-map))
           (define-key m (kbd "C-s-j") 'flycheck-previous-error)
           (define-key m (kbd "C-s-k") 'flycheck-next-error))
         (add-hook 'flycheck-mode-hook 'flycheck-color-mode-line-mode))))
 #+end_src
+
+#+source: message-line
+#+begin_src emacs-lisp
+  (message "------ Starter Kit Misc loaded ------")
+#+end_src
+

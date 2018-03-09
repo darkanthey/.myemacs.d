@@ -195,3 +195,10 @@ back, =C-M-u= up, =C-M-d= down)
   (font-lock-add-keywords 'lisp-mode
                           '(("(\\|)" . 'starter-kit-paren-face)))
 #+end_src
+
+
+#+source: message-line
+#+begin_src emacs-lisp
+  (message "------ Starter Kit Lisp loaded ------")
+#+end_src
+

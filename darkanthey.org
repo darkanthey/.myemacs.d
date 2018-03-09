@@ -87,7 +87,8 @@ You will also need to change the values for the location of bibtex
   (add-hook 'org-after-todo-statistics-hook 'my-org-autodone)
 
   ;;File and refile notes to any main header in any file in my org-agenda-files list.
-  (setq org-refile-targets '((nil :level . 1) (org-agenda-files :level . 1)))
+  (setq org-refile-targets '((nil :level . 1)
+                             (org-agenda-files :level . 1)))
 #+end_src
 
 
@@ -117,7 +118,10 @@ You will also need to change the values for the location of bibtex
   (eval-after-load "webjump"
   '(add-to-list 'webjump-sites
                 '("Urban Dictionary" .
-                  [simple-query "www.urbandictionary.com" "http://www.urbandictionary.com/define.php?term=" ""])))
+                  [simple-query
+                   "www.urbandictionary.com"
+                   "http://www.urbandictionary.com/define.php?term="
+                   ""])))
 #+end_src
 
 
@@ -151,7 +155,8 @@ You will also need to change the values for the location of bibtex
   ;; connect to irc on invocation but don't autojoin any channels
   (require 'rcirc)
   ;; (add-to-list 'rcirc-server-alist '("irc.freenode.net"))
-  (setq rcirc-server-alist '(("irc.freenode.net" :port 6697 :encryption tls :channels ("#haskell" "#emacs" "#python"))))
+  (setq rcirc-server-alist
+        '(("irc.freenode.net" :port 6697 :encryption tls :channels ("#haskell" "#emacs" "#python"))))
 #+end_src
 
 

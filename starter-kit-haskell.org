@@ -71,3 +71,8 @@ Support for editing Haskell
 #+end_src
 
 
+#+source: message-line
+#+begin_src emacs-lisp
+  (message "------ Starter Kit Haskell loaded ------")
+#+end_src
+

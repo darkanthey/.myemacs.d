@@ -45,10 +45,9 @@ Markdown and Pandoc, as well as spellchecking and line-wrapping.
     (require 'smooth-scrolling)
 
     ;; more smooth efforts.
-    (setq-default
-    scroll-conservatively 0
-    scroll-up-aggressively 0.01
-    scroll-down-aggressively 0.01)
+    (setq-default scroll-conservatively 0
+                  scroll-up-aggressively 0.01
+                  scroll-down-aggressively 0.01)
 #+end_src
 
 ** Spelling
@@ -91,8 +90,7 @@ Markdown and Pandoc, as well as spellchecking and line-wrapping.
     ("verbatim\\*?"        . "\\\\end[ \t\n]*{[ \t\n]*verbatim\\*?[ \t\n]*}"))))
 #+end_src
 
-** Smartparens Mode
-   Smart autopairing of quotes and parentheses.
+** Smartparens Mode. Smart autopairing of quotes and parentheses.
 #+srcname: smartparens
 #+begin_src emacs-lisp
   (smartparens-global-mode 1)
@@ -100,35 +98,7 @@ Markdown and Pandoc, as well as spellchecking and line-wrapping.
   (show-smartparens-global-mode +1)
 #+end_src
 
-** Markdown 
-Markdown mode support.
-
-#+srcname: markdown-mode
-#+begin_src emacs-lisp
-      (autoload 'markdown-mode "markdown-mode"
-      "Major mode for editing Markdown files" t)
-      (setq auto-mode-alist
-      (cons '("\\.Markdown" . markdown-mode) auto-mode-alist)
-      )
-      (setq auto-mode-alist
-      (cons '("\\.MarkDown" . markdown-mode) auto-mode-alist)
-      )
-      (setq auto-mode-alist
-      (cons '("\\.markdown" . markdown-mode) auto-mode-alist)
-      )
-      (setq auto-mode-alist
-      (cons '("\\.md" . markdown-mode) auto-mode-alist)
-      )
-      (setq auto-mode-alist
-      (cons '("README\\.md" . gfm-mode) auto-mode-alist)
-      )
-
-  (add-hook 'markdown-mode-hook 'latex-unicode-simplified)
-#+end_src
-
-** Deft
-   Deft mode helps organize folders of text notes.
-
+** Deft mode helps organize folders of text notes.
 #+srcname deft-mode
 #+begin_src emacs-lisp
   (require 'deft)
@@ -140,3 +110,9 @@ Markdown mode support.
   (setq deft-org-mode-title-prefix t)
   (global-set-key (kbd "C-x C-g") 'deft-find-file)
 #+end_src
+
+#+source: message-line
+#+begin_src emacs-lisp
+  (message "------ Starter Kit Text loaded ------")
+#+end_src
+

@@ -143,3 +143,10 @@ supplied by the Python distribution itself.
       (push '("await" . ?⌛) prettify-symbols-alist)
       (push '("lambda" . ?λ) prettify-symbols-alist)))
 #+end_src
+
+
+#+source: message-line
+#+begin_src emacs-lisp
+  (message "------ Starter Kit Python loaded ------")
+#+end_src
+

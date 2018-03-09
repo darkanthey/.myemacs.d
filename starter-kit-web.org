@@ -12,7 +12,7 @@ Java-script Helpers
                                'css-mode
                                'mouse-slider-mode
                                'web-mode
-                               'ng2-mode
+                               ;;'ng2-mode
                                'skewer-mode
                                'simple-httpd))
   (dolist (package install-packages) (package-install package))
@@ -89,3 +89,10 @@ Java-script Helpers
               (setq-default js2-rebind-eol-bol-keys nil)
   ))
 #+end_src
+
+
+#+source: message-line
+#+begin_src emacs-lisp
+  (message "------ Starter Kit Web loaded ------")
+#+end_src
+

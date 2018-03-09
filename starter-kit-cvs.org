@@ -154,3 +154,10 @@ Allow marge CVS
 
   (advice-add 'vc-git-mode-line-string :filter-return 'my-shorten-vc-mode-line)
 #+end_src
+
+
+#+source: message-line
+#+begin_src emacs-lisp
+  (message "------ Starter Kit CVS loaded ------")
+#+end_src
+
