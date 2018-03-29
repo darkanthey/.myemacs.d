@@ -241,6 +241,7 @@ Most of the solution came from [[http://www.emacswiki.org/emacs/FlySpell][EmacsW
   (defun flycheck-custom ()
     (require 'flycheck)
     (run-hooks 'flycheck)
+    (flycheck-mode)
 
     (defun flycheck-moder(param)
       (interactive)

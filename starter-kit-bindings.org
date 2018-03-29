@@ -290,6 +290,7 @@ It's to the point now where I almost can't use git without magit.
 - [[http://groups.google.com/group/magit/][Mailing list]]
 #+begin_src emacs-lisp
   (global-set-key (kbd "C-x g") 'magit-status)
+  (global-set-key (kbd "C-x G") 'magit-show-refs-popup)
 #+end_src
 
 #+resname:
@@ -306,7 +307,7 @@ It's to the point now where I almost can't use git without magit.
 
 ** Cscope keybinding
 #+begin_src emacs-lisp
-  (global-set-key (kbd "C-c C-g") 'helm-cscope-find-global-definition)
+  ;; (global-set-key (kbd "C-c C-g") 'helm-cscope-find-global-definition)
   (global-set-key (kbd "C-c C-y") 'cscope-find-functions-calling-this-function)
 #+end_src
 
@@ -362,4 +363,3 @@ Sometimes very useful (but we don't use the core cua keys.)
 #+begin_src emacs-lisp
   (message "------ Starter Kit Binding loaded ------")
 #+end_src
-
