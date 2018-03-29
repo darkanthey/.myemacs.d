@@ -21,7 +21,7 @@ Support for editing list dialects including [[* Emacs Lisp][Emacs Lisp]], [[* Sc
 
 
 #+name: starter-kit-define-lisp-keys
-#+begin_src emacs-lisp 
+#+begin_src emacs-lisp
   (define-key read-expression-map (kbd "TAB") 'lisp-complete-symbol)
   ;; (define-key lisp-mode-shared-map (kbd "C-c l") "lambda")
   (define-key lisp-mode-shared-map (kbd "RET") 'reindent-then-newline-and-indent)
@@ -119,27 +119,6 @@ back, =C-M-u= up, =C-M-d= down)
 
   (add-hook 'sldb-mode-hook 'sldb-font-lock)
 
-  (defun slime-jump-to-trace (&optional on)
-    "Jump to the file/line that the current stack trace line references.
-  Only works with files in your project root's src/, not in dependencies."
-    (interactive)
-    (save-excursion
-      (beginning-of-line)
-      (search-forward-regexp "[0-9]: \\([^$(]+\\).*?\\([0-9]*\\))")
-      (let ((line (string-to-number (match-string 2)))
-            (ns-path (split-string (match-string 1) "\\."))
-            (project-root (locate-dominating-file default-directory "src/")))
-        (find-file (format "%s/src/%s.clj" project-root
-                           (mapconcat 'identity ns-path "/")))
-        (goto-line line))))
-
-  (eval-after-load 'slime
-    '(progn
-       (defalias 'sldb-toggle-details 'slime-jump-to-trace)
-       (defun sldb-prune-initial-frames (frames)
-         "Show all stack trace lines by default."
-         frames)))
-
   (defun clojure-project (path)
     "Setup classpaths for a clojure project and starts a new SLIME session.
 
@@ -201,4 +180,3 @@ back, =C-M-u= up, =C-M-d= down)
 #+begin_src emacs-lisp
   (message "------ Starter Kit Lisp loaded ------")
 #+end_src
-
