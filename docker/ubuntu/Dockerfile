@@ -24,8 +24,8 @@ USER apps
 WORKDIR /home/darkanthey
 
 RUN curl https://sh.rustup.rs -o rustup.sh && \
-    sh rustup.sh --default-host x86_64-unknown-linux-gnu --default-toolchain nightly-2018-01-28 -y && \
-    rustup default nightly-2018-01-28
+    sh rustup.sh --default-host x86_64-unknown-linux-gnu --default-toolchain nightly-2018-04-04 -y && \
+    rustup default nightly-2018-04-04
 
 WORKDIR /home/darkanthey/remacs_src
 
