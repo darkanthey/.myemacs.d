@@ -19,8 +19,7 @@ This is part of the [[file:starter-kit.org][Emacs Starter Kit]].
   (global-set-key [f3] 'highlight-symbol-next)
   (global-set-key [(control f3)] 'highlight-symbol-at-point)
   (global-set-key [(shift f3)] 'highlight-symbol-prev)
-  (global-set-key [(meta f3)] 'highlight-symbol-prev)
-  (global-set-key [(control meta f3)] 'highlight-symbol-query-replace)
+  (global-set-key [(meta f3)] 'highlight-symbol-list-all)
   (provide 'init-highlight-symbol)
 #+end_src
 
@@ -45,7 +44,6 @@ This is part of the [[file:starter-kit.org][Emacs Starter Kit]].
   (global-set-key [f7] 'neotree-toggle)
   (global-set-key [f8] 'ffip)
   (global-set-key [(control f8)] 'projectile-ibuffer)
-  (global-set-key (kbd "C-x C-x") 'projectile-ibuffer)
   (global-set-key [(meta f8)] 'projectile-switch-project)
 #+end_src
 
@@ -237,16 +235,6 @@ When windows get out of order, you can rotate them.
   (global-set-key (kbd "C-x /") 'delete-horizontal-space)
 #+end_src
 
-** Applications
-#+begin_src emacs-lisp
-  (global-set-key (kbd "C-c j") (lambda () (interactive) (switch-or-start 'jabber-connect "*-jabber-*")))
-  (global-set-key (kbd "C-c i") (lambda () (interactive) (switch-or-start (lambda ()
-                                                                       (rcirc-connect "irc.freenode.net"))
-                                                                     "*irc.freenode.net*")))
-  (global-set-key (kbd "C-c J") 'jabber-send-presence)
-  (global-set-key (kbd "C-c M-j") 'jabber-disconnect)
-  (global-set-key (kbd "C-x C-j") 'jabber-activity-switch-to)
-#+end_src
 
 ** Activate occur easily inside isearch
 #+begin_src emacs-lisp
@@ -302,13 +290,6 @@ It's to the point now where I almost can't use git without magit.
 ** Help should search more than just commands
 #+begin_src emacs-lisp
   (global-set-key (kbd "C-h a") 'apropos)
-#+end_src
-
-
-** Cscope keybinding
-#+begin_src emacs-lisp
-  ;; (global-set-key (kbd "C-c C-g") 'helm-cscope-find-global-definition)
-  (global-set-key (kbd "C-c C-y") 'cscope-find-functions-calling-this-function)
 #+end_src
 
 

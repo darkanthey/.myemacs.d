@@ -1,19 +1,18 @@
-FROM fedora:latest
+FROM core/archlinux
 
-RUN yum install -y \
+RUN pacman -Syu
+RUN pacman --noconfirm -S \
     git \
-    gcc gcc-c++ \
-    kernel-devel \
+    gcc \
     make \
     automake \
-    ncurses-devel \
-    giflib-devel \
-    libjpeg-turbo-devel \
-    libtiff-devel \
-    gtk3-devel \
-    libxml2-devel \
-    libXpm-devel \
-    gnutls-devel \
+    gtk3 \
+    ncurses \
+    giflib \
+    libjpeg-turbo \
+    libxml2 \
+    libxpm \
+    gnutls \
     curl \
     texinfo
 

@@ -16,5 +16,5 @@ RUN curl https://sh.rustup.rs -o rustup.sh && \
 
 WORKDIR /home/darkanthey/remacs_src
 
-ENTRYPOINT ./configure --with-modules --without-mailutils --with-xft --with-libsystemd --enable-link-time-optimization --without-pop --prefix=/home/darkanthey/.local && \
+ENTRYPOINT ./autogen.sh && ./configure --with-modules --without-mailutils --with-xft --without-tiff --with-zlib --without-x --with-libsystemd --enable-link-time-optimization --without-pop --prefix=/home/darkanthey/.local && \
            make && make install

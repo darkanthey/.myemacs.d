@@ -1,0 +1,19 @@
+---
+arch: x86_64
+distro: core/archlinux
+base_config: |
+    RUN pacman -Syu
+    RUN pacman --noconfirm -S \
+        git \
+        gcc \
+        make \
+        automake \
+        gtk3 \
+        ncurses \
+        giflib \
+        libjpeg-turbo \
+        libxml2 \
+        libxpm \
+        gnutls \
+        curl \
+        texinfo

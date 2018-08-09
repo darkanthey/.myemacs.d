@@ -381,11 +381,14 @@ Load up [[http://tromey.com/elpa/][ELPA]], the Emacs Lisp package manager
   (require 'undo-tree)
   (require 'neotree)
 
+  ;;(require 'company-mode)
+  (add-hook 'after-init-hook 'global-company-mode)
+
   (global-color-identifiers-mode 1)
   (global-undo-tree-mode 1)
-  (projectile-global-mode)
-  (setq projectile-completion-system 'helm)
-  (helm-projectile-on)
+  ;(projectile-global-mode)
+  ;(setq projectile-completion-system 'helm)
+  ;(helm-projectile-on)
   (global-auto-revert-mode 1)
 #+end_src
 
@@ -490,7 +493,7 @@ Located in [[file:starter-kit-web.org][[[file:starter-kit-eshell.org][starter-ki
 
 *** Starter Kit Haskell
 Located in [[file:starter-kit-haskell.org][[[file:starter-kit-eshell.org][starter-kit-haskell]]]
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle no
   (starter-kit-load "starter-kit-haskell.org")
 #+end_src
 

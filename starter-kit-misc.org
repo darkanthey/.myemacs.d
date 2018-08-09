@@ -281,4 +281,3 @@ Most of the solution came from [[http://www.emacswiki.org/emacs/FlySpell][EmacsW
 #+begin_src emacs-lisp
   (message "------ Starter Kit Misc loaded ------")
 #+end_src
-

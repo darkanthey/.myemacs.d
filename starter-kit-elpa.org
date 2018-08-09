@@ -21,7 +21,6 @@ The following packages should always be installed
                                      'fuzzy
 
                                      'ggtags ;; Tagging
-                                     'helm-cscope
                                      'ripgrep
 
                                      'smex
@@ -39,10 +38,11 @@ The following packages should always be installed
                                      'yasnippet
                                      'yasnippet-bundle
                                      's ;;For prodigy, projectile, kit-defuns
-                                     'multiple-cursors
                                      'helm
-                                     'helm-swoop
                                      'helm-projectile
+
+                                     ;; Company
+                                     'company
 
                                      ;; Workgroups libs
                                      'workgroups2

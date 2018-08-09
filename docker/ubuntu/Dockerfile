@@ -24,11 +24,11 @@ USER apps
 WORKDIR /home/darkanthey
 
 RUN curl https://sh.rustup.rs -o rustup.sh && \
-    sh rustup.sh --default-host x86_64-unknown-linux-gnu --default-toolchain nightly-2018-04-04 -y && \
-    rustup default nightly-2018-04-04
+    sh rustup.sh --default-host x86_64-unknown-linux-gnu --default-toolchain nightly-2018-02-18 -y && \
+    rustup default nightly-2018-02-18
 
 WORKDIR /home/darkanthey/remacs_src
 
-ENTRYPOINT ./configure --with-modules --without-mailutils --with-xft --with-libsystemd --enable-link-time-optimization --without-pop --prefix=/home/darkanthey/.local && \
+ENTRYPOINT ./autogen.sh && ./configure --with-modules --without-mailutils --with-xft --without-tiff --with-zlib --without-x --with-libsystemd --enable-link-time-optimization --without-pop --prefix=/home/darkanthey/.local && \
            make && make install
 

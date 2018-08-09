@@ -18,8 +18,7 @@ git clone https://github.com/emacs-mirror/emacs.git
 or If you prefer emacs based on Rush lang.
 git clone https://github.com/Wilfred/remacs.git
 cd emacs
-./configure --with-modules --with-xft --with-libsystemd --enable-link-time-optimization --without-pop --prefix=/home/darkanthey/.local
-make && make install
+./autogen.sh && ./configure --with-modules --without-mailutils --with-xft --with-zlib --with-libsystemd --enable-link-time-optimization --without-pop --prefix=/home/darkanthey/.local && make && make install
 
 # Install fonts
 mkdir ~/.fonts
@@ -40,7 +39,8 @@ fc-cache -f -v
 sudo apt install libtool textinfo ImageMagick
 
 ;; --- For gnus email ---
-sudo apt install starttls openssl, w3m, w3m-img
+sudo apt install starttls openssl w3m w3m-img
+sudo pacman -S gnutls openssl w3m
 
 ;; --- For flemake xml ---
 sudo apt install xmlstarlet
@@ -51,9 +51,8 @@ sudo apt install hunspell
 # Programming Languages
 
 ## Python
-sudo apt install pyflakes
 virtualenv --no-site-packages --distribute -p /usr/bin/python3.6 ~/.emacs.d/.python-environments/default
-~/.emacs.d/.python-environments/default/bin/pip3 install --use-wheel --upgrade jedi isort pylint pyflakes pep8 autopep8 importmagic yapf coala-bears
+~/.emacs.d/.python-environments/default/bin/pip3 install --upgrade jedi isort pylint==2.0.0.dev2 pylint-venv pyflakes pep8 autopep8 pyre-check importmagic
 ln -s ~/.emacs.d/.python-environments/default ~/.virtualenvs/emacs
 
 ## Haskell
@@ -71,3 +70,5 @@ go get -u github.com/dougm/goflymake
 # For backup. Find and remove compile starter kit el file
 find . -type f -name "starter-kit*.el" -exec rm -f {} \; && rm -f "$(whoami).el";
 
+## Run
+remacs -q -l ~/.myemacs.d/init.el

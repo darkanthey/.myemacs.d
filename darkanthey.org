@@ -2,35 +2,55 @@
 #+OPTIONS: toc:nil num:nil ^:nil
 
 * Starter Kit darkanthey
-/You must change the name of this file/ to the value of the Emacs
- variable =user-login-name= OR =system-name=, so that it will be
- picked up by =init.el= when Emacs starts up, and be loaded
- properly. To find the current value of these variables on your
- system, do =C-h-v system-name [RET]= and =C-h-v user-login-name
- [RET]=. For example, on my system =user-login-name= is 'darkanthey', so
- this file is named =darkanthey.org=, and when Emacs starts up with the
- starter kit it creates the file =darkanthey.el=.
+  You must change the name of this file/ to the value of the Emacs
+  variable =user-login-name= OR =system-name=, so that it will be
+  picked up by =init.el= when Emacs starts up, and be loaded
+  properly. To find the current value of these variables on your
+  system, do =C-h-v system-name [RET]= and =C-h-v user-login-name
+  [RET]=. For example, on my system =user-login-name= is 'darkanthey', so
+  this file is named =darkanthey.org=, and when Emacs starts up with the
+  starter kit it creates the file =darkanthey.el=.
 
-You will also need to change the values for the location of bibtex
- databases and orgmode-mobile specified below, and some other
- settings. *Search for 'darkanthey' in this file* to find the paths that
- need to be updated. Change them as needed or comment them out if you
- don't use these features.
+  You will also need to change the values for the location of bibtex
+  databases and orgmode-mobile specified below, and some other
+  settings. *Search for 'darkanthey' in this file* to find the paths that
+  need to be updated. Change them as needed or comment them out if you
+  don't use these features.
 
-** Miscellaneous Settings and starter-kit overrides
-*** User settings
+** User settings
 
 #+srcname: user-local-settings
 #+begin_src emacs-lisp
-  ;; My name and e-mail adress
-  (setq user-full-name   "Andrew Grytsenko")
-  (setq user-mail-adress "darkanthey@gmail.com")
+  ;; My name and e-mail address
+  (setq user-full-name "Andrew Grytsenko")
+  (setq user-mail-address "darkanthey@gmail.com")
+#+end_src
+
+
+*** Font settings
+    Font-face setup. Check the availability of a some default fonts, in
+    order of preference. The first of these alternatives to be found is
+    set as the default font, together with base size and fg/bg
+    colors. If none of the preferred fonts is found, nothing happens
+    and Emacs carries on with the default setup. We do this here to
+    prevent some of the irritating flickering and resizing that
+    otherwise goes on during startup. You can reorder or replace the
+    options here with the names of your preferred choices.
+#+srcname: font-settings
+#+begin_src emacs-lisp
+  (defun load-exists-font ()
+    "Load exists font from list"
+    (let ((ordered-fonts nil))
+      (setq ordered-fonts '("Hack" "Inconsolata" "Menlo" "Consolas" "Monospace" "Source Code Pro"))
+      (add-hook 'server-visit-hook '(set-font-from-list ordered-fonts))
+      (set-font-from-list ordered-fonts)))
+
+  (load-exists-font)
 #+end_src
 
 
 *** Theme settings
     Chenge theme or/and color settings
-
 #+srcname: local-settings
 #+begin_src emacs-lisp
   ;; (load-theme 'zenburn t)
@@ -43,16 +63,12 @@ You will also need to change the values for the location of bibtex
 
 #+srcname: customization persp-mode
 #+begin_src emacs-lisp
-  (project-specifics "projects/proj"
-    (set (make-local-variable 'slime-js-target-url) "http://local.proj.com/")
-    (ffip-local-patterns "*.py" "*.scss" "*.js" "*.xml" "*.html"))
+  (defun custom-persp/org ()
+    (interactive)
+    (custom-persp "@org"
+      (find-file (first org-agenda-files))))
 
-  ;; (defun custom-persp/org ()
-  ;;   (interactive)
-  ;;   (custom-persp "@org"
-  ;;     (find-file (first org-agenda-files))))
-
-  ;; (global-set-key (kbd "C-x p o") 'custom-persp/org)
+  (global-set-key (kbd "C-x p o") 'custom-persp/org)
 #+end_src
 
 
@@ -62,8 +78,8 @@ You will also need to change the values for the location of bibtex
   (prodigy-define-service
     :name "docker"
     :command "docker"
-    :args '("start" "dynamodb redis mail")
-    :cwd "/home/darkanthey/code/oauth2/"
+    :args '("start" "ws-postgres ws-rabbitmq")
+    :cwd "/home/darkanthey/Code/BlockEx/ws-api/"
     :tags '(proj)
     :kill-signal 'sigkill
     :kill-process-buffer-on-stop t)
@@ -94,7 +110,7 @@ You will also need to change the values for the location of bibtex
 
 *** Org Settings
     Sync orgmode files with Dropbox.
-#+src-name: orgmode-mobile
+#+srcname: orgmode-mobile
 #+begin_src emacs-lisp
    ;; Where archived projects and tasks go
    (setq org-archive-location "~/Templates/Dropbox/Org/archive.org::From %s")

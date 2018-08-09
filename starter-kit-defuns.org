@@ -11,6 +11,26 @@ Function definitions
   (require 'imenu)
 #+end_src
 
+
+** Font-loader
+
+#+srcname: starter-kit-font-loader
+#+begin_src emacs-lisp
+(defun set-font-from-list (fonts)
+  "Set font from FONTS list is available."
+  (when fonts
+    (let ((sfont nil))
+      (setq sfont (car fonts))
+      (if (member sfont (font-family-list))
+          (progn
+            (add-to-list 'initial-frame-alist '((font . sfont)))
+            (add-to-list 'default-frame-alist '((font . sfont)))
+            (set-face-attribute 'default nil :family sfont :height 180))
+        (setfont(cdr fonts))))
+    ))
+#+end_src
+
+
 ** Buffer-related
 
 #+srcname: starter-kit-ido-imenu
@@ -333,4 +353,3 @@ a lambda doesn't already exist in the list.
 #+begin_src emacs-lisp
   (message "------ Starter Kit Defun loaded ------")
 #+end_src
-

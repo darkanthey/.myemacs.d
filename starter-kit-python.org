@@ -21,9 +21,9 @@ This is part of the [[file:starter-kit.org][Emacs Starter Kit]].
                                'company-jedi
                                'python-mode
                                'auto-virtualenv
+                               'auto-virtualenvwrapper
                                'virtualenvwrapper
                                'py-isort
-                               'pungi
                                'pylint))
 
   (dolist (package install-packages) (package-install package))
@@ -34,33 +34,35 @@ This is part of the [[file:starter-kit.org][Emacs Starter Kit]].
 Replace the Python mode that comes with Emacs by the Python mode
 supplied by the Python distribution itself.
 #+begin_src emacs-lisp
-  (global-eldoc-mode -1)
   (require 'python-mode)
   (require 'auto-virtualenv)
   (require 'virtualenvwrapper)
 
-  ;; (add-to-list 'auto-mode-alist '("\\.py\\'" . python-mode))
-  ;; (add-to-list 'interpreter-mode-alist '("python" . python-mode))
-  ;; (add-to-list 'auto-mode-alist '("\\.egg\\'" . archive-mode))
-  (add-hook 'python-mode-hook 'run-coding-hook)
-
+  ;; Activate on changing buffers
+  (add-hook 'window-configuration-change-hook 'auto-virtualenv-set-virtualenv)
+  ;; Activate on focus in
+  (add-hook 'focus-in-hook 'auto-virtualenv-set-virtualenv)
   (pyvenv-activate "~/.virtualenvs/emacs")
-  (add-hook 'python-mode-hook 'auto-virtualenv-set-virtualenv)
 
   (defun custom-python-mode-hook ()
-    (add-to-list 'company-backends
-		 'company-jedi
-		 'company-mode
-		 'auto-virtualenv-set-virtualenv))
+    '(lambda ()
+       (smartparens-global-mode 1)
+       (require 'smartparens-config)
+       (show-smartparens-global-mode +1)
+       (setq flycheck-checker 'python-pylint))
+   )
 
   (add-hook 'python-mode-hook
-	    '(lambda ()
-	      (custom-python-mode-hook)
+            '(lambda ()
+              (run-coding-hook)
+              (global-eldoc-mode -1)
+              ;;(custom-python-mode-hook)
               (my-personal-code-style 4)
-	      (flycheck-mode t)
-	      (setq-default py-smart-indentation t)
-	      (setq-default py-jump-on-exception nil)
-	      (setq indent-line-function (quote insert-tab))))
+              (flycheck-mode t)
+              (auto-virtualenv-set-virtualenv)
+              (setq-default py-smart-indentation t)
+              (setq-default py-jump-on-exception nil)
+              (setq indent-line-function (quote insert-tab))))
 #+end_src
 
 
@@ -68,7 +70,6 @@ supplied by the Python distribution itself.
 #+srcname: jedi_config
 #+begin_src emacs-lisp
   (require 'jedi)
-  (require 'pungi)
   (require 'jedi-direx)
 
   ;; Hook up to autocomplete
@@ -83,34 +84,14 @@ supplied by the Python distribution itself.
               'jedi:setup ;; Enable Jedi setup on mode start
               'jedi-config:setup-server-args ;; Buffer-specific server options
               'jedi-config:setup-keys ;; Use custom keybinds
-              'pungi:setup-jedi))
-#+end_src
-
-
-** Smartparens Mode
-   Smart autopairing of quotes and parentheses.
-#+srcname: smartparens
-#+begin_src emacs-lisp
-  (smartparens-global-mode 1)
-  (require 'smartparens-config)
-  (show-smartparens-global-mode +1)
+              ))
 #+end_src
 
 
 ** py-isort
 #+begin_src emacs-lisp
-  (require 'py-isort)
-  (add-hook 'before-save-hook 'py-isort-before-save)
-#+end_src
-
-
-** Flycheck
-#+begin_src emacs-lisp
-  (add-hook 'python-mode-hook
-            '(lambda () (setq flycheck-checker 'python-pylint)))
-
-  ;; (eval-after-load 'flycheck
-  ;;   '(require 'flycheck-coala))
+  ;; (require 'py-isort)
+  ;; (add-hook 'before-save-hook 'py-isort-before-save)
 #+end_src
 
 
@@ -149,4 +130,3 @@ supplied by the Python distribution itself.
 #+begin_src emacs-lisp
   (message "------ Starter Kit Python loaded ------")
 #+end_src
-
