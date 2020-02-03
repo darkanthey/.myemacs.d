@@ -63,31 +63,6 @@ Allow marge CVS
 #+end_src
 
 
-#+srcname: persp with eshell, magit
-#+begin_src emacs-lisp
-  ;; eshell
-  (persp-def-buffer-save/load
-   :mode 'eshell-mode :tag-symbol 'def-eshell-buffer
-   :save-vars '(major-mode default-directory))
-
-  ;; compile
-  (persp-def-buffer-save/load
-   :mode 'compilation-mode :tag-symbol 'def-compilation-buffer
-   :save-vars '(major-mode default-directory compilation-directory
-                           compilation-environment compilation-arguments))
-
-  ;; magit-status
-  (with-eval-after-load "magit-autoloads"
-    (autoload 'magit-status-mode "magit")
-    (autoload 'magit-refresh "magit")
-    (persp-def-buffer-save/load
-     :mode 'magit-status-mode :tag-symbol 'def-magit-status-buffer
-     :save-vars '(major-mode default-directory)
-     :after-load-function #'(lambda (b &rest _)
-                              (with-current-buffer b (magit-refresh)))))
-#+end_src
-
-
 ** Customize Ediff for merge
 #+srcname: starter-kit-ediff
 #+begin_src emacs-lisp
@@ -160,4 +135,3 @@ Allow marge CVS
 #+begin_src emacs-lisp
   (message "------ Starter Kit CVS loaded ------")
 #+end_src
-

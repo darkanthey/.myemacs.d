@@ -9,55 +9,53 @@ This is part of the [[file:starter-kit.org][Emacs Starter Kit]].
 The following packages should always be installed
 
 #+begin_src emacs-lisp
-  (defvar starter-kit-packages (list 'zenburn-theme ;Design mode
-                                     'material-theme
-                                     'powerline
-                                     'rainbow-delimiters
-                                     'color-identifiers-mode
-                                     'highlight-symbol
+    (defvar starter-kit-packages (list 'rainbow-delimiters
+                                       'color-identifiers-mode
+                                       'highlight-symbol
 
-                                     'package-utils ;;package-utils-upgrade-all
+                                       'package-utils ;;package-utils-upgrade-all
 
-                                     'fuzzy
+                                       'fuzzy
 
-                                     'ggtags ;; Tagging
-                                     'ripgrep
+                                       'ggtags ;; Tagging
+                                       'ripgrep
 
-                                     'smex
-                                     'browse-kill-ring
-                                     'ace-jump-mode
+                                       'smex
+                                       'browse-kill-ring
+                                       'ace-jump-mode
 
-                                     'org ;; Org packages
-                                     'org-ac
+                                       'org ;; Org packages
+                                       'org-ac
 
-                                     'neotree
-                                     'undo-tree
-                                     'expand-region
-                                     'find-file-in-project
+                                       'neotree
+                                       'undo-tree
+                                       'expand-region
+                                       'find-file-in-project
 
-                                     'yasnippet
-                                     'yasnippet-bundle
-                                     's ;;For prodigy, projectile, kit-defuns
-                                     'helm
-                                     'helm-projectile
+                                       'yasnippet
+                                       'yasnippet-bundle
+                                       's ;;For prodigy, projectile, kit-defuns
+                                       'helm
+                                       'helm-projectile
 
-                                     ;; Company
-                                     'company
+                                       ;; Company
+                                       'company
 
-                                     ;; Workgroups libs
-                                     'workgroups2
-                                     'projectile
-                                     'persp-mode
-                                     'persp-mode-projectile-bridge
+                                       ;;ibuffer-vc
+                                       'ibuffer-vc
 
-                                     'flycheck
-                                     'flycheck-color-mode-line
+                                       ;; Workgroups libs
+                                       'workgroups2
+                                       'projectile
 
-                                     'yaml-mode
-                                     'smart-shift
-                                     'e2wm
-                                     'prodigy)
-    "Libraries that should be installed by default.")
+                                       'flycheck
+                                       'flycheck-color-mode-line
+
+                                       'yaml-mode
+                                       'smart-shift
+                                       'e2wm
+                                       'prodigy)
+      "Libraries that should be installed by default.")
 #+end_src
 
 #+begin_src emacs-lisp

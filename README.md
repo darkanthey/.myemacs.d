@@ -51,8 +51,8 @@ sudo apt install hunspell
 # Programming Languages
 
 ## Python
-virtualenv --no-site-packages --distribute -p /usr/bin/python3.6 ~/.emacs.d/.python-environments/default
-~/.emacs.d/.python-environments/default/bin/pip3 install --upgrade jedi isort pylint==2.0.0.dev2 pylint-venv pyflakes pep8 autopep8 pyre-check importmagic
+virtualenv --no-site-packages --distribute -p /usr/bin/python3.7 ~/.emacs.d/.python-environments/default
+~/.emacs.d/.python-environments/default/bin/pip3 install --upgrade jedi isort pylint==2.4.4 pylint-venv pyflakes pep8 autopep8 pyre-check importmagic
 ln -s ~/.emacs.d/.python-environments/default ~/.virtualenvs/emacs
 
 ## Haskell

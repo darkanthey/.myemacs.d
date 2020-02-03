@@ -7,6 +7,7 @@ This is part of the [[file:starter-kit.org][Emacs Starter Kit]].
 
 ** Turn on the menu bar for exploring new modes
 #+begin_src emacs-lisp
+  (define-key key-translation-map (kbd "s-3") (kbd "#"))  ;;; For fix MACOS # symbol
   (global-set-key [f1] 'menu-bar-mode)
   (global-set-key [f2] 'cua-mode)
 #+end_src
@@ -74,6 +75,22 @@ This is part of the [[file:starter-kit.org][Emacs Starter Kit]].
 ** Expond region
 #+begin_src emacs-lisp
   (global-set-key (kbd "C-c e") 'er/expand-region)
+#+end_src
+
+
+** Helm settings
+#+begin_src emacs-lisp
+  (global-set-key "\C-c\C-m" 'helm-M-x)
+
+  ;;;; these can be invoked vim-style
+  ;;;; Esc-:<single_key_from_below>
+  ;;(define-key evil-ex-map "b " 'helm-mini)
+  ;;(define-key evil-ex-map "e" 'helm-find-files)
+  ;;(define-key evil-ex-map "g" 'helm-projectile-grep)
+  ;;(define-key evil-ex-map "f" 'helm-projectile-find-file)
+
+  ;;(define-key evil-ex-map "g" 'helm-projectile-grep)
+  ;;(define-key evil-ex-map "f" 'helm-projectile-find-file)
 #+end_src
 
 

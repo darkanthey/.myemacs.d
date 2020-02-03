@@ -299,14 +299,20 @@ since they are likely to be used in every session
 
 #+srcname: starter-kit-load-on-startup
 #+begin_src emacs-lisp
-  (require 'cl)
   (require 'saveplace)
   (require 'ffap)
   (require 'uniquify)
   (require 'ansi-color)
   (require 'recentf)
   (require 'vc)
+  (add-to-list 'load-path "~/.emacs.d/emacs-libvterm")
+  (unless (file-exists-p (concat (file-name-directory (locate-library "vterm"))
+                                 "vterm-module.so"))
+    (message "Set vterm to install.")
+    (setq vterm-install t)
+    (require 'vterm))
 #+end_src
+
 
 *** Function for loading/compiling starter-kit-*
 #+srcname: starter-kit-load
@@ -371,24 +377,40 @@ Load up [[http://tromey.com/elpa/][ELPA]], the Emacs Lisp package manager
 #+srcname: starter-kit-load-on-startup-after-elpa-install
 #+begin_src emacs-lisp
   (require 'workgroups2)
+  (setq wg-session-load-on-start t)    ; default: (not (daemonp))
+
+  ;; Change prefix key (before activating WG)
+  (setq wg-prefix-key (kbd "C-c z"))
+
+  ;; Change workgroups session file
+  (setq wg-session-file "~/.emacs.d/.emacs_workgroups")
+
+  (setq wg-emacs-exit-save-behavior           'save)      ; Options: 'save 'ask nil
+  (setq wg-workgroups-mode-exit-save-behavior 'save)      ; Options: 'save 'ask nil
+
+  ;; Mode Line changes
+  ;; Display workgroups in Mode Line?
+  (setq wg-mode-line-display-on t)          ; Default: (not (featurep 'powerline))
+  (setq wg-flag-modified t)                 ; Display modified flags as well
+  (setq wg-mode-line-decor-left-brace "["
+        wg-mode-line-decor-right-brace "]"  ; how to surround it
+        wg-mode-line-decor-divider ":")
   (workgroups-mode 1)
 
-  (require 'persp-mode)
-  (persp-mode 1)
+  (require 'ibuffer-vc)
 
   (require 'helm-config)
   (require 'helm)
   (require 'undo-tree)
   (require 'neotree)
 
-  ;;(require 'company-mode)
+  (setq-default helm-M-x-fuzzy-match t)
+  (require 'helm-projectile)
+
   (add-hook 'after-init-hook 'global-company-mode)
 
   (global-color-identifiers-mode 1)
   (global-undo-tree-mode 1)
-  ;(projectile-global-mode)
-  ;(setq projectile-completion-system 'helm)
-  ;(helm-projectile-on)
   (global-auto-revert-mode 1)
 #+end_src
 

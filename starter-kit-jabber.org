@@ -12,8 +12,9 @@
   ;; Jabber connection settings.
   (require 'jabber)
   (custom-set-variables
-   '(jabber-account-list (quote (("darkanthey@gmail.com/emacs" (:password . "bmavurinyrxjxwmy") (:network-server . "talk.google.com") (:port . 5223) (:connection-type . ssl))
-                               ("andrew.grytsenko@chat.facebook.com/emacs" (:password . "8Gxw95tR") (:connection-type . network)))))
+   '(jabber-account-list (quote (("darkanthey@gmail.com/emacs" (:password . "xxx") (:network-server . "talk.google.com") (:port . 5223) (:connection-type . ssl))
+                                 ("andrew.grytsenko@chat.facebook.com/emacs" (:password . "xxx") (:connection-type . network))
+                                 )))
    '(jabber-history-enabled t)
    '(jabber-use-global-history nil)
    '(jabber-vcard-avatars-retrieve nil)
@@ -108,4 +109,3 @@
   (define-key jabber-chat-mode-map (kbd "M-p") 'my-jabber-previous-input)
   (define-key jabber-chat-mode-map (kbd "M-n") 'my-jabber-next-input)
 #+end_src
-

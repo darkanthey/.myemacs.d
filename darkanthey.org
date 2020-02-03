@@ -49,20 +49,52 @@
 #+end_src
 
 
+** Install Git packages
+#+begin_src emacs-lisp
+  ;;; 'zenburn-theme 'material-theme
+  (setq install-packages (list 'doom-themes 'indent-guide 'doom-modeline 'powerline))
+  (dolist (package install-packages) (package-install package))
+#+end_src
+
+
 *** Theme settings
     Chenge theme or/and color settings
 #+srcname: local-settings
 #+begin_src emacs-lisp
   ;; (load-theme 'zenburn t)
-  (load-theme 'material t)
+  ;; (load-theme 'material t)
 
-  (require 'powerline)
-  (powerline-center-theme)
+  ;; (require 'powerline)
+  ;; (powerline-center-theme)
+
+  (require 'doom-themes)
+
+  (require 'indent-guide)
+  (indent-guide-global-mode)
+  (set-face-background 'indent-guide-face "dimgray")
+
+  ;; Global settings (defaults)
+  (setq doom-themes-enable-bold t    ; if nil, bold is universally disabled
+        doom-themes-enable-italic t) ; if nil, italics is universally disabled
+
+  ;; Load the theme (doom-one, doom-molokai, etc); keep in mind that each
+  ;; theme may have their own settings.
+  (load-theme 'doom-molokai t)
+
+  ;; Enable flashing mode-line on errors
+  (doom-themes-visual-bell-config)
+
+  ;; Enable custom neotree theme
+  (doom-themes-neotree-config)  ; all-the-icons fonts must be installed!
+
+  (require 'doom-modeline)
+  (doom-modeline-mode 1)
 #+end_src
 
 
 #+srcname: customization persp-mode
 #+begin_src emacs-lisp
+  (setenv "PYTHONPATH" "/Users/darkanthey/.virtualenvs/int/lib/python3.7/site-packages")
   (defun custom-persp/org ()
     (interactive)
     (custom-persp "@org"
@@ -81,6 +113,18 @@
     :args '("start" "ws-postgres ws-rabbitmq")
     :cwd "/home/darkanthey/Code/BlockEx/ws-api/"
     :tags '(proj)
+    :kill-signal 'sigkill
+    :kill-process-buffer-on-stop t)
+
+  (prodigy-define-service
+    :name "hop_pytest"
+    :env '(("PYTHONHOME" "~/.virtualenvs/int/")
+           ("PYTHONPATH" "~/Code/hopster/hopster-www/app/")
+           ("VIRTUAL_ENV" "~/.virtualenvs/int/"))
+    :command "pytest"
+    :args '("pytest" "--sdk-path ./lib --ignore lib/ -nauto")
+    :cwd "~/Code/hopster/hopster-www/app/"
+    :tags '(hop_pytest)
     :kill-signal 'sigkill
     :kill-process-buffer-on-stop t)
 #+end_src

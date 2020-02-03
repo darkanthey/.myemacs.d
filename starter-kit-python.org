@@ -42,7 +42,9 @@ supplied by the Python distribution itself.
   (add-hook 'window-configuration-change-hook 'auto-virtualenv-set-virtualenv)
   ;; Activate on focus in
   (add-hook 'focus-in-hook 'auto-virtualenv-set-virtualenv)
-  (pyvenv-activate "~/.virtualenvs/emacs")
+  (require 'pyvenv)
+  (pyvenv-workon "int")
+  (pyvenv-activate "~/.virtualenvs/emacs3")
 
   (defun custom-python-mode-hook ()
     '(lambda ()
@@ -56,7 +58,7 @@ supplied by the Python distribution itself.
             '(lambda ()
               (run-coding-hook)
               (global-eldoc-mode -1)
-              ;;(custom-python-mode-hook)
+              (custom-python-mode-hook)
               (my-personal-code-style 4)
               (flycheck-mode t)
               (auto-virtualenv-set-virtualenv)
@@ -90,8 +92,8 @@ supplied by the Python distribution itself.
 
 ** py-isort
 #+begin_src emacs-lisp
-  ;; (require 'py-isort)
-  ;; (add-hook 'before-save-hook 'py-isort-before-save)
+  (require 'py-isort)
+  (add-hook 'before-save-hook 'py-isort-before-save)
 #+end_src
 
 
